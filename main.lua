@@ -1,5 +1,5 @@
--- [[ LYZEEN GRAY: SOUTH BRONX AUTO COOK FAST SUGAR ]] --
--- Fix: Sugar -> Gelatin (No Delay) | Wait 63s for Empty Bag
+-- [[ LYZEEN GRAY: SOUTH BRONX AUTO COOK REAL TIMING ]] --
+-- Flow: Water (E) -> 23s -> Sugar (E) -> Gelatin (E) -> 63s -> Empty Bag (E)
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local VirtualUser = game:GetService("VirtualUser")
@@ -13,12 +13,12 @@ local Window = Rayfield:CreateWindow({
    Theme = "Green"
 })
 
--- [[ TAB COOKING (TIMING RE-FIX) ]] --
+-- [[ TAB COOKING (LOGIC FIX) ]] --
 local CookingTab = Window:CreateTab("Cooking", 4483362458)
 _G.AutoCook = false
 
 CookingTab:CreateToggle({
-   Name = "AUTO COOK MS (FAST SUGAR)",
+   Name = "AUTO COOK MS (REAL TIMING)",
    CurrentValue = false,
    Callback = function(Value)
       _G.AutoCook = Value
@@ -27,14 +27,10 @@ CookingTab:CreateToggle({
             -- Fungsi bantu buat pegang item & interaksi
             local function Action(Item)
                if not _G.AutoCook then return end
-               
                local Tool = game.Players.LocalPlayer.Backpack:FindFirstChild(Item) or game.Players.LocalPlayer.Character:FindFirstChild(Item)
                if Tool then
-                  -- 1. Equip Item
                   game.Players.LocalPlayer.Character.Humanoid:EquipTool(Tool)
-                  task.wait(0.6)
-                  
-                  -- 2. Paksa Pencet E (Interact)
+                  task.wait(0.7)
                   for _, v in pairs(workspace:GetDescendants()) do
                      if v:IsA("ProximityPrompt") and (v.Parent.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 15 then
                         fireproximityprompt(v)
@@ -44,37 +40,39 @@ CookingTab:CreateToggle({
                end
             end
             
-            -- [[ ALUR MASAK FAST SUGAR ]] --
+            -- [[ URUTAN SESUAI PERINTAH ]] --
             
             -- 1. Water & Interact (E)
             Action("Water")
-            task.wait(0.5) 
+            
+            -- 2. TUNGGU 23 DETIK (Setelah Water)
+            task.wait(23)
             
             if not _G.AutoCook then break end
             
-            -- 2. Sugar & Interact (E) - LANGSUNG LANJUT
+            -- 3. Sugar & Interact (E)
             Action("Sugar")
-            task.wait(0.5) 
+            task.wait(0.5) -- Jeda dikit biar gak bug
             
             if not _G.AutoCook then break end
             
-            -- 3. Gelatin & Interact (E)
+            -- 4. Gelatin & Interact (E)
             Action("Gelatin")
             
-            -- 4. TUNGGU 63 DETIK SETELAH GELATIN (Proses Masak)
-            task.wait(63) 
+            -- 5. TUNGGU 63 DETIK (Proses Masak)
+            task.wait(63)
             
             if not _G.AutoCook then break end
             
-            -- 5. Empty Bag & Interact (E)
+            -- 6. Empty Bag & Interact (E)
             Action("Empty Bag")
-            task.wait(3) -- Jeda sebelum loop balik ke awal
+            task.wait(5) -- Jeda sebelum loop balik ke Water
          end
       end)
    end,
 })
 
--- [[ TAB TELEPORT (KORDINAT PRESISI LO) ]] --
+-- [[ TAB TELEPORT (KORDINAT PRESISI) ]] --
 local function SafeVehicleTP(TargetCFrame)
     local Hum = game.Players.LocalPlayer.Character.Humanoid
     if Hum.SeatPart and Hum.SeatPart:IsA("VehicleSeat") then
@@ -92,7 +90,7 @@ TPTab:CreateButton({Name = "TP ke NPC MS", Callback = function() SafeVehicleTP(C
 TPTab:CreateButton({Name = "TP ke DEALER", Callback = function() SafeVehicleTP(CFrame.new(731, 6.5, 443)) end})
 TPTab:CreateButton({Name = "TP ke GS MID", Callback = function() SafeVehicleTP(CFrame.new(215, 6.5, -132)) end})
 
--- [[ TAB COMBAT (AIMBOT & KEPALA GEDE) ]] --
+-- [[ TAB COMBAT ]] --
 local CombatTab = Window:CreateTab("Combat", 4483362458)
 _G.HeadSize = 1
 CombatTab:CreateSlider({
