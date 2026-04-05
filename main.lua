@@ -1,78 +1,90 @@
--- [[ LYZEEN GRAY: SOUTH BRONX ULTIMATE BYPASS (NO KEY EDITION) ]] --
--- Creator: LyzeenGray | South Bronx Pro Script
+-- [[ LYZEEN GRAY: SOUTH BRONX ULTIMATE BYPASS ]] --
+-- Theme: Green (Hacker Edition) | No Key Required
 
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local Window = Library.CreateLib("LyzeenGray Hub - South Bronx", "DarkTheme")
+-- GANTI TEMA JADI GREEN
+local Window = Library.CreateLib("LyzeenGray Hub - South Bronx", "GreenTheme")
 
--- NOTIFIKASI AWAL
+-- NOTIFIKASI SUKSES
 game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "LyzeenGray Hub",
-    Text = "Script Loaded Successfully! No Key Required.",
+    Title = "LyzeenGray",
+    Text = "Bypass Active! Enjoy Green Edition.",
     Duration = 5
 })
 
--- TAB COMBAT (AIMBOT)
+-- TAB COMBAT
 local Combat = Window:NewTab("Combat")
 local AimSection = Combat:NewSection("Aimbot & Gun Mods")
 
-AimSection:NewToggle("Aimbot (Lock On)", "Nempel ke Musuh", function(state)
+AimSection:NewToggle("Aimbot (Lock On)", "Nempel ke Musuh Terdekat", function(state)
     _G.Aimbot = state
-end)
-
-AimSection:NewToggle("Silent Aim", "Tembakan Auto Kena", function(state)
-    _G.SilentAim = state
-end)
-
-AimSection:NewButton("No Recoil & No Spread", "Tembakan Lurus", function()
-    print("LyzeenGray: Recoil Removed")
-end)
-
-AimSection:NewToggle("Infinite Ammo", "Peluru Unlimited", function(state)
-    _G.InfAmmo = state
-end)
-
--- TAB MAIN (MOVEMENT)
-local Main = Window:NewTab("Main")
-local MainSection = Main:NewSection("Player Mods")
-
-MainSection:NewSlider("Walkspeed", "Lari Cepat", 250, 16, function(s)
-    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = s
-end)
-
-MainSection:NewToggle("Noclip", "Tembus Tembok", function(state)
-    _G.Noclip = state
-    game:GetService("RunService").Stepped:Connect(function()
-        if _G.Noclip then
-            for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-                if v:IsA("BasePart") then v.CanCollide = false end
+    local Player = game.Players.LocalPlayer
+    local Mouse = Player:GetMouse()
+    game:GetService("RunService").RenderStepped:Connect(function()
+        if _G.Aimbot then
+            -- Logic cari musuh terdekat (Sederhana)
+            for _, v in pairs(game.Players:GetPlayers()) do
+                if v ~= Player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                    -- Lock Camera (Bisa lo kembangin lagi)
+                end
             end
         end
     end)
 end)
 
--- TAB FARMS (EKONOMI)
-local FarmTab = Window:NewTab("Farms")
-local FarmSection = FarmTab:NewSection("Auto Marshmallow")
+AimSection:NewButton("No Recoil (Lurus)", "Tembakan Tidak Goyang", function()
+    -- Script untuk nge-reset recoil senjata di South Bronx
+    for _, v in pairs(getgc(true)) do
+        if type(v) == "table" and rawget(v, "Recoil") then
+            v.Recoil = 0
+            v.Spread = 0
+        end
+    end
+end)
 
-FarmSection:NewToggle("Auto Buy Ingredients", "Water/Sugar/Gelatin", function(state)
+-- TAB MOVEMENT
+local Move = Window:NewTab("Movement")
+local MoveSection = Move:NewSection("Player Speed")
+
+MoveSection:NewSlider("Walkspeed", "Lari Cepat", 250, 16, function(s)
+    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = s
+end)
+
+MoveSection:NewToggle("Noclip", "Tembus Tembok", function(state)
+    _G.Noclip = state
+    game:GetService("RunService").Stepped:Connect(function()
+        if _G.Noclip then
+            if game.Players.LocalPlayer.Character then
+                for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+                    if v:IsA("BasePart") then v.CanCollide = false end
+                end
+            end
+        end
+    end)
+end)
+
+-- TAB ECONOMY (WATER, SUGAR, GELATIN)
+local Farm = Window:NewTab("Farms")
+local FarmSection = FarmSection or Farm:NewSection("Auto Marshmallow")
+
+FarmSection:NewToggle("Auto Buy Ingredients", "Otomatis Beli Bahan", function(state)
     _G.AutoBuy = state
     while _G.AutoBuy do
         task.wait(0.5)
+        -- Logic: Memanggil Remote Event Toko di South Bronx
+        -- Lo bisa isi remote event shop disini kalo udah dapet jalurnya
         print("LyzeenGray: Buying Ingredients...")
     end
 end)
 
-FarmSection:NewToggle("Auto Sell Bags", "Jual Otomatis", function(state)
-    _G.AutoSell = state
-end)
-
 -- TAB TELEPORTS
 local TPTab = Window:NewTab("Teleports")
-local TPSection = TPTab:NewSection("Locations")
-TPSection:NewButton("Teleport to Bank", "Ke Bank", function() print("Teleporting...") end)
-TPSection:NewButton("Teleport to ATM", "Ke ATM", function() print("Teleporting...") end)
+local TPSection = TPTab:NewSection("Main Locations")
 
--- TAB ESP
-local ESPTab = Window:NewTab("ESP")
-local ESPSection = ESPTab:NewSection("Visuals")
-ESPSection:NewToggle("Box ESP", "Lihat Kotak Player", function(state) end)
+TPSection:NewButton("TP to Dealer", "Ke Dealer", function()
+    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(284, 3, -483) -- Contoh Koordinat
+end)
+
+TPSection:NewButton("TP to Ingredient Shop", "Beli Bahan", function()
+    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(410, 3, -150) -- Contoh Koordinat
+end)
