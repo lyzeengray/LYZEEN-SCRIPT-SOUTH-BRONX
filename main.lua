@@ -1,5 +1,5 @@
--- [[ LYZEEN GRAY: SOUTH BRONX ULTIMATE BYPASS ]] --
--- Fitur: Aimbot, ESP Chams, Kepala Gede (1-5), Safe Speed 20
+-- [[ LYZEEN GRAY: SOUTH BRONX FINAL ULTIMATE ]] --
+-- Fitur: Aimbot, Hitbox Kepala 1-5, Auto Cook, Safe Speed 20
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
@@ -10,9 +10,8 @@ local Window = Rayfield:CreateWindow({
    ConfigurationSaving = {Enabled = true, FolderName = "LyzeenSB", FileName = "Config"}
 })
 
--- [[ TAB COMBAT: AIMBOT & KEPALA GEDE ]] --
+-- [[ TAB COMBAT: AIMBOT & HITBOX ]] --
 local CombatTab = Window:CreateTab("Combat", 4483362458)
-CombatTab:CreateSection("Aimbot & Hitbox")
 
 local AimbotEnabled = false
 CombatTab:CreateToggle({
@@ -28,10 +27,7 @@ CombatTab:CreateToggle({
             for _, v in pairs(game.Players:GetPlayers()) do
                if v ~= Player and v.Character and v.Character:FindFirstChild("Head") then
                   local d = (v.Character.Head.Position - Player.Character.Head.Position).magnitude
-                  if d < dist then
-                     dist = d
-                     target = v
-                  end
+                  if d < dist then dist = d target = v end
                end
             end
             if target then
@@ -42,102 +38,90 @@ CombatTab:CreateToggle({
    end,
 })
 
--- [[ FITUR KEPALA GEDE (HITBOX) ]] --
 CombatTab:CreateSlider({
-   Name = "KEPALA GEDE (Hitbox)",
+   Name = "KEPALA GEDE (Hitbox 1-5)",
    Range = {1, 5},
    Increment = 1,
    CurrentValue = 1,
    Callback = function(Value)
       _G.HeadSize = Value
       spawn(function()
-         while task.wait(1) do
+         while true do
             for _, v in pairs(game.Players:GetPlayers()) do
                if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Head") then
-                  v.Character.Head.Size = Vector3.new(Value * 2, Value * 2, Value * 2) -- Skala 1-5
+                  v.Character.Head.Size = Vector3.new(Value * 2.5, Value * 2.5, Value * 2.5)
                   v.Character.Head.CanCollide = false
-                  v.Character.Head.Transparency = 0.5 -- Biar gak terlalu nutupin pandangan
+                  v.Character.Head.Transparency = 0.5
                end
             end
+            task.wait(2)
          end
       end)
    end,
 })
 
-CombatTab:CreateButton({
-   Name = "Remove Recoil (Lurus)",
+-- [[ TAB FARM: AUTO COOKING ]] --
+local FarmTab = Window:CreateTab("Cooking", 4483362458)
+
+FarmTab:CreateToggle({
+   Name = "Auto Buy Ingredients (Water/Sugar/Gelatin)",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.AutoBuy = Value
+      spawn(function()
+         while _G.AutoBuy do
+            -- Trigger Remote Event Beli Bahan
+            local args = {[1] = "BuyItem", [2] = "Water"}
+            game:GetService("ReplicatedStorage").Events.ShopEvent:FireServer(unpack(args))
+            task.wait(0.5)
+         end
+      end)
+   end,
+})
+
+FarmTab:CreateButton({
+   Name = "Instant Cook (Marshmallow)",
    Callback = function()
-      for _, v in pairs(getgc(true)) do
-         if type(v) == "table" and rawget(v, "Recoil") then
-            v.Recoil = 0
-            v.Spread = 0
+      -- Logic masak otomatis di South Bronx
+      game:GetService("ReplicatedStorage").Events.CookEvent:FireServer("Start")
+      Rayfield:Notify({Title = "Cooking", Content = "Started Auto Cook!", Duration = 2})
+   end,
+})
+
+-- [[ TAB VISUALS: ESP CHAMS ]] --
+local VisualsTab = Window:CreateTab("Visuals", 4483362458)
+_G.ESP = false
+VisualsTab:CreateToggle({
+   Name = "Master ESP (Chams + Name)",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.ESP = Value
+      for _, v in pairs(game.Players:GetPlayers()) do
+         if v.Character and v ~= game.Players.LocalPlayer then
+            if Value then
+               local h = Instance.new("Highlight", v.Character)
+               h.Name = "LyzeenESP"
+               h.FillColor = Color3.fromRGB(0, 255, 0)
+            else
+               if v.Character:FindFirstChild("LyzeenESP") then v.Character.LyzeenESP:Destroy() end
+            end
          end
       end
    end,
 })
 
--- [[ TAB VISUALS: ESP CHAMS FIX ]] --
-local VisualsTab = Window:CreateTab("Visuals", 4483362458)
-VisualsTab:CreateSection("ESP Settings")
-
-_G.ESP_Enabled = false
-local function ApplyESP(v)
-    if v ~= game.Players.LocalPlayer and v.Character then
-        if v.Character:FindFirstChild("LyzeenChams") then v.Character.LyzeenChams:Destroy() end
-        
-        local Highlight = Instance.new("Highlight")
-        Highlight.Name = "LyzeenChams"
-        Highlight.Parent = v.Character
-        Highlight.FillColor = Color3.fromRGB(0, 255, 0)
-        Highlight.Enabled = _G.ESP_Enabled
-        
-        if v.Character:FindFirstChild("Head") then
-            local Billboard = Instance.new("BillboardGui", v.Character.Head)
-            Billboard.Name = "LyzeenInfo"
-            Billboard.Size = UDim2.new(0, 100, 0, 50)
-            Billboard.StudsOffset = Vector3.new(0, 3, 0)
-            Billboard.AlwaysOnTop = true
-            Billboard.Enabled = _G.ESP_Enabled
-
-            local Text = Instance.new("TextLabel", Billboard)
-            Text.BackgroundTransparency = 1
-            Text.Size = UDim2.new(1, 0, 1, 0)
-            Text.TextColor3 = Color3.fromRGB(0, 255, 0)
-            Text.Font = Enum.Font.GothamBold
-            Text.TextSize = 12
-            
-            spawn(function()
-                while v.Character and v.Character:FindFirstChild("Humanoid") do
-                    local hp = math.floor(v.Character.Humanoid.Health)
-                    Text.Text = v.Name .. "\n[ HP: " .. hp .. " ]"
-                    task.wait(1)
-                end
-            end)
-        end
-    end
-end
-
-VisualsTab:CreateToggle({
-   Name = "Master ESP (Chams + Name + HP)",
-   CurrentValue = false,
-   Callback = function(Value)
-      _G.ESP_Enabled = Value
-      for _, v in pairs(game.Players:GetPlayers()) do ApplyESP(v) end
-   end,
-})
-
--- [[ TAB MOVEMENT: SAFE SPEED ]] --
+-- [[ TAB MOVEMENT ]] --
 local MoveTab = Window:CreateTab("Movement", 4483362458)
 MoveTab:CreateSlider({
-   Name = "WalkSpeed (Max 20)",
+   Name = "Safe WalkSpeed (Max 20)",
    Range = {16, 20},
    Increment = 1,
    CurrentValue = 16,
    Callback = function(Value)
-      _G.Speed = Value
+      _G.WS = Value
       spawn(function()
-         while _G.Speed == Value do
-            if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+         while _G.WS == Value do
+            if game.Players.LocalPlayer.Character then
                game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
             end
             task.wait()
