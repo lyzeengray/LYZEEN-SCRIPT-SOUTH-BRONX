@@ -1,5 +1,5 @@
--- [[ LYZEEN GRAY: SOUTH BRONX FINAL FIX ]] --
--- Fitur: Fixed Big Head, Aimbot, TP to DS, Auto Cook, Safe Speed 20
+-- [[ LYZEEN GRAY: SOUTH BRONX MOTOR TP FIX ]] --
+-- Fitur: TP Motor (Anti-Ban), Fixed DS & Dealer, Kepala Gede, Safe Speed 20
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
@@ -9,25 +9,38 @@ local Window = Rayfield:CreateWindow({
    LoadingSubtitle = "by LyzeenGray",
    ConfigurationSaving = {Enabled = true, FolderName = "LyzeenSB", FileName = "Config"},
    KeySystem = false,
-   Theme = "Green" -- Tema Hijau
+   Theme = "Green"
 })
+
+-- [[ FUNGSI TELEPORT MOTOR ]] --
+local function TPWithVehicle(TargetCFrame)
+    local Player = game.Players.LocalPlayer
+    local Char = Player.Character
+    if Char and Char:FindFirstChild("Humanoid") then
+        local Seat = Char.Humanoid.SeatPart
+        if Seat and Seat:IsA("VehicleSeat") then
+            -- Kalo lagi di motor, yang di-teleport motornya (Root dari motor)
+            local Vehicle = Seat.Parent
+            Vehicle:SetPrimaryPartCFrame(TargetCFrame)
+        else
+            -- Kalo gak ada motor, baru teleport badan (Resiko Ban lebih tinggi)
+            Char.HumanoidRootPart.CFrame = TargetCFrame
+        end
+    end
+end
 
 -- [[ TAB COMBAT ]] --
 local CombatTab = Window:CreateTab("Combat", 4483362458)
-CombatTab:CreateSection("Hitbox & Aimbot")
-
 _G.HeadSize = 1
 CombatTab:CreateSlider({
-   Name = "KEPALA GEDE (Fixed)",
+   Name = "KEPALA GEDE (Hitbox)",
    Range = {1, 10},
    Increment = 1,
    CurrentValue = 1,
-   Callback = function(Value)
-      _G.HeadSize = Value
-   end,
+   Callback = function(Value) _G.HeadSize = Value end,
 })
 
--- SCRIPT PENGUNCI KEPALA GEDE (ANTI KEDAP-KEDIP)
+-- SCRIPT PENGUNCI KEPALA GEDE
 game:GetService("RunService").RenderStepped:Connect(function()
     if _G.HeadSize > 1 then
         for _, v in pairs(game.Players:GetPlayers()) do
@@ -41,27 +54,28 @@ end)
 
 -- [[ TAB TELEPORT ]] --
 local TPTab = Window:CreateTab("Teleports", 4483362458)
-TPTab:CreateSection("Location List")
+TPTab:CreateSection("Location List (Naik Motor Dulu!)")
 
 TPTab:CreateButton({
-   Name = "Teleport ke DS (Ingredient Shop)",
+   Name = "Teleport ke DS (Ingredients)",
    Callback = function()
-      -- Koordinat Toko Bahan (DS) South Bronx
-      game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(410.5, 3.2, -150.8)
-      Rayfield:Notify({Title = "Teleport", Content = "Arrived at DS Shop", Duration = 2})
+      -- Koordinat BARU (Langsung di depan NPC/Meja DS)
+      local Target = CFrame.new(396.5, 3.5, -155.2)
+      TPWithVehicle(Target)
+      Rayfield:Notify({Title = "Teleport", Content = "Motor TP ke DS Berhasil!", Duration = 2})
    end,
 })
 
 TPTab:CreateButton({
    Name = "Teleport ke Dealer (Gun Shop)",
    Callback = function()
-      game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(284.1, 3.5, -483.2)
+      local Target = CFrame.new(280.2, 3.5, -480.8)
+      TPWithVehicle(Target)
    end,
 })
 
 -- [[ TAB COOKING ]] --
 local CookingTab = Window:CreateTab("Cooking", 4483362458)
-
 CookingTab:CreateToggle({
    Name = "Auto Buy Ingredients",
    CurrentValue = false,
@@ -69,9 +83,8 @@ CookingTab:CreateToggle({
       _G.AutoBuy = Value
       spawn(function()
          while _G.AutoBuy do
-            local args = {[1] = "BuyItem", [2] = "Water"} -- Remote Event Toko
-            game:GetService("ReplicatedStorage").Events.ShopEvent:FireServer(unpack(args))
-            task.wait(1)
+            game:GetService("ReplicatedStorage").Events.ShopEvent:FireServer("BuyItem", "Water")
+            task.wait(1.5)
          end
       end)
    end,
