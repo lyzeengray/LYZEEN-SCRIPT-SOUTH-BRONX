@@ -1,5 +1,5 @@
--- [[ LYZEEN GRAY: SOUTH BRONX MOTOR TP FIX ]] --
--- Fitur: TP Motor (Anti-Ban), Fixed DS & Dealer, Kepala Gede, Safe Speed 20
+-- [[ LYZEEN GRAY: SOUTH BRONX FINAL PROTECTED ]] --
+-- Fitur: TP Motor Only (Anti-Ban), Aimbot Fix, Big Head, Full Auto Cook
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
@@ -12,25 +12,55 @@ local Window = Rayfield:CreateWindow({
    Theme = "Green"
 })
 
--- [[ FUNGSI TELEPORT MOTOR ]] --
-local function TPWithVehicle(TargetCFrame)
+-- [[ FUNGSI PROTEKSI TELEPORT MOTOR ]] --
+local function SafeVehicleTP(TargetCFrame)
     local Player = game.Players.LocalPlayer
     local Char = Player.Character
-    if Char and Char:FindFirstChild("Humanoid") then
-        local Seat = Char.Humanoid.SeatPart
-        if Seat and Seat:IsA("VehicleSeat") then
-            -- Kalo lagi di motor, yang di-teleport motornya (Root dari motor)
-            local Vehicle = Seat.Parent
-            Vehicle:SetPrimaryPartCFrame(TargetCFrame)
-        else
-            -- Kalo gak ada motor, baru teleport badan (Resiko Ban lebih tinggi)
-            Char.HumanoidRootPart.CFrame = TargetCFrame
-        end
+    local Hum = Char and Char:FindFirstChild("Humanoid")
+    
+    if Hum and Hum.SeatPart and Hum.SeatPart:IsA("VehicleSeat") then
+        -- JIKA NAIK MOTOR: Teleport Kendaraannya
+        local Vehicle = Hum.SeatPart.Parent
+        Vehicle:SetPrimaryPartCFrame(TargetCFrame)
+        Rayfield:Notify({Title = "Success", Content = "Motor Berhasil Teleport!", Duration = 2})
+    else
+        -- JIKA JALAN KAKI: Batalkan & Kasih Peringatan
+        Rayfield:Notify({
+            Title = "Gagal Teleport!", 
+            Content = "Anda harus mengendarai Motor untuk teleport!", 
+            Duration = 5
+        })
     end
 end
 
 -- [[ TAB COMBAT ]] --
 local CombatTab = Window:CreateTab("Combat", 4483362458)
+CombatTab:CreateSection("Aimbot & Hitbox")
+
+local AimbotEnabled = false
+CombatTab:CreateToggle({
+   Name = "Aimbot (Lock Head)",
+   CurrentValue = false,
+   Callback = function(Value)
+      AimbotEnabled = Value
+      game:GetService("RunService").RenderStepped:Connect(function()
+         if AimbotEnabled then
+            local target = nil
+            local dist = math.huge
+            for _, v in pairs(game.Players:GetPlayers()) do
+               if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Head") then
+                  local d = (v.Character.Head.Position - game.Players.LocalPlayer.Character.Head.Position).magnitude
+                  if d < dist then dist = d target = v end
+               end
+            end
+            if target then
+               workspace.CurrentCamera.CFrame = CFrame.new(workspace.CurrentCamera.CFrame.Position, target.Character.Head.Position)
+            end
+         end
+      end)
+   end,
+})
+
 _G.HeadSize = 1
 CombatTab:CreateSlider({
    Name = "KEPALA GEDE (Hitbox)",
@@ -40,7 +70,7 @@ CombatTab:CreateSlider({
    Callback = function(Value) _G.HeadSize = Value end,
 })
 
--- SCRIPT PENGUNCI KEPALA GEDE
+-- LOCK KEPALA GEDE (ANTI KEDAP-KEDIP)
 game:GetService("RunService").RenderStepped:Connect(function()
     if _G.HeadSize > 1 then
         for _, v in pairs(game.Players:GetPlayers()) do
@@ -52,30 +82,28 @@ game:GetService("RunService").RenderStepped:Connect(function()
     end
 end)
 
--- [[ TAB TELEPORT ]] --
+-- [[ TAB TELEPORT (MOTOR ONLY) ]] --
 local TPTab = Window:CreateTab("Teleports", 4483362458)
-TPTab:CreateSection("Location List (Naik Motor Dulu!)")
+TPTab:CreateSection("Wajib Naik Motor!")
 
 TPTab:CreateButton({
-   Name = "Teleport ke DS (Ingredients)",
+   Name = "Teleport ke DS (Ingredients Shop)",
    Callback = function()
-      -- Koordinat BARU (Langsung di depan NPC/Meja DS)
-      local Target = CFrame.new(396.5, 3.5, -155.2)
-      TPWithVehicle(Target)
-      Rayfield:Notify({Title = "Teleport", Content = "Motor TP ke DS Berhasil!", Duration = 2})
+      -- Koordinat dalam toko DS
+      SafeVehicleTP(CFrame.new(396.5, 3.5, -155.2))
    end,
 })
 
 TPTab:CreateButton({
-   Name = "Teleport ke Dealer (Gun Shop)",
+   Name = "Teleport ke Dealer (Senjata)",
    Callback = function()
-      local Target = CFrame.new(280.2, 3.5, -480.8)
-      TPWithVehicle(Target)
+      SafeVehicleTP(CFrame.new(280.2, 3.5, -480.8))
    end,
 })
 
 -- [[ TAB COOKING ]] --
 local CookingTab = Window:CreateTab("Cooking", 4483362458)
+
 CookingTab:CreateToggle({
    Name = "Auto Buy Ingredients",
    CurrentValue = false,
@@ -87,6 +115,14 @@ CookingTab:CreateToggle({
             task.wait(1.5)
          end
       end)
+   end,
+})
+
+CookingTab:CreateButton({
+   Name = "Auto Cook (Marshmallow)",
+   Callback = function()
+      game:GetService("ReplicatedStorage").Events.CookEvent:FireServer("Start")
+      Rayfield:Notify({Title = "Cooking", Content = "Mulai Masak Otomatis...", Duration = 2})
    end,
 })
 
