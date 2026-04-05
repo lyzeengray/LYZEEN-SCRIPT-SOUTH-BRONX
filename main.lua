@@ -1,5 +1,5 @@
--- [[ LYZEEN GRAY: SOUTH BRONX FINAL ULTIMATE ]] --
--- Fitur: Aimbot, Hitbox Kepala 1-5, Auto Cook, Safe Speed 20
+-- [[ LYZEEN GRAY: SOUTH BRONX FINAL FIX ]] --
+-- Fitur: Fixed Big Head, Aimbot, TP to DS, Auto Cook, Safe Speed 20
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
@@ -7,113 +7,80 @@ local Window = Rayfield:CreateWindow({
    Name = "LyzeenGray Hub | South Bronx",
    LoadingTitle = "Bypassing Security...",
    LoadingSubtitle = "by LyzeenGray",
-   ConfigurationSaving = {Enabled = true, FolderName = "LyzeenSB", FileName = "Config"}
+   ConfigurationSaving = {Enabled = true, FolderName = "LyzeenSB", FileName = "Config"},
+   KeySystem = false,
+   Theme = "Green" -- Tema Hijau
 })
 
--- [[ TAB COMBAT: AIMBOT & HITBOX ]] --
+-- [[ TAB COMBAT ]] --
 local CombatTab = Window:CreateTab("Combat", 4483362458)
+CombatTab:CreateSection("Hitbox & Aimbot")
 
-local AimbotEnabled = false
-CombatTab:CreateToggle({
-   Name = "Aimbot (Lock Head)",
-   CurrentValue = false,
-   Callback = function(Value)
-      AimbotEnabled = Value
-      local Player = game.Players.LocalPlayer
-      game:GetService("RunService").RenderStepped:Connect(function()
-         if AimbotEnabled then
-            local target = nil
-            local dist = math.huge
-            for _, v in pairs(game.Players:GetPlayers()) do
-               if v ~= Player and v.Character and v.Character:FindFirstChild("Head") then
-                  local d = (v.Character.Head.Position - Player.Character.Head.Position).magnitude
-                  if d < dist then dist = d target = v end
-               end
-            end
-            if target then
-               workspace.CurrentCamera.CFrame = CFrame.new(workspace.CurrentCamera.CFrame.Position, target.Character.Head.Position)
-            end
-         end
-      end)
-   end,
-})
-
+_G.HeadSize = 1
 CombatTab:CreateSlider({
-   Name = "KEPALA GEDE (Hitbox 1-5)",
-   Range = {1, 5},
+   Name = "KEPALA GEDE (Fixed)",
+   Range = {1, 10},
    Increment = 1,
    CurrentValue = 1,
    Callback = function(Value)
       _G.HeadSize = Value
-      spawn(function()
-         while true do
-            for _, v in pairs(game.Players:GetPlayers()) do
-               if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Head") then
-                  v.Character.Head.Size = Vector3.new(Value * 2.5, Value * 2.5, Value * 2.5)
-                  v.Character.Head.CanCollide = false
-                  v.Character.Head.Transparency = 0.5
-               end
-            end
-            task.wait(2)
-         end
-      end)
    end,
 })
 
--- [[ TAB FARM: AUTO COOKING ]] --
-local FarmTab = Window:CreateTab("Cooking", 4483362458)
+-- SCRIPT PENGUNCI KEPALA GEDE (ANTI KEDAP-KEDIP)
+game:GetService("RunService").RenderStepped:Connect(function()
+    if _G.HeadSize > 1 then
+        for _, v in pairs(game.Players:GetPlayers()) do
+            if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Head") then
+                v.Character.Head.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
+                v.Character.Head.CanCollide = false
+            end
+        end
+    end
+end)
 
-FarmTab:CreateToggle({
-   Name = "Auto Buy Ingredients (Water/Sugar/Gelatin)",
+-- [[ TAB TELEPORT ]] --
+local TPTab = Window:CreateTab("Teleports", 4483362458)
+TPTab:CreateSection("Location List")
+
+TPTab:CreateButton({
+   Name = "Teleport ke DS (Ingredient Shop)",
+   Callback = function()
+      -- Koordinat Toko Bahan (DS) South Bronx
+      game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(410.5, 3.2, -150.8)
+      Rayfield:Notify({Title = "Teleport", Content = "Arrived at DS Shop", Duration = 2})
+   end,
+})
+
+TPTab:CreateButton({
+   Name = "Teleport ke Dealer (Gun Shop)",
+   Callback = function()
+      game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(284.1, 3.5, -483.2)
+   end,
+})
+
+-- [[ TAB COOKING ]] --
+local CookingTab = Window:CreateTab("Cooking", 4483362458)
+
+CookingTab:CreateToggle({
+   Name = "Auto Buy Ingredients",
    CurrentValue = false,
    Callback = function(Value)
       _G.AutoBuy = Value
       spawn(function()
          while _G.AutoBuy do
-            -- Trigger Remote Event Beli Bahan
-            local args = {[1] = "BuyItem", [2] = "Water"}
+            local args = {[1] = "BuyItem", [2] = "Water"} -- Remote Event Toko
             game:GetService("ReplicatedStorage").Events.ShopEvent:FireServer(unpack(args))
-            task.wait(0.5)
+            task.wait(1)
          end
       end)
-   end,
-})
-
-FarmTab:CreateButton({
-   Name = "Instant Cook (Marshmallow)",
-   Callback = function()
-      -- Logic masak otomatis di South Bronx
-      game:GetService("ReplicatedStorage").Events.CookEvent:FireServer("Start")
-      Rayfield:Notify({Title = "Cooking", Content = "Started Auto Cook!", Duration = 2})
-   end,
-})
-
--- [[ TAB VISUALS: ESP CHAMS ]] --
-local VisualsTab = Window:CreateTab("Visuals", 4483362458)
-_G.ESP = false
-VisualsTab:CreateToggle({
-   Name = "Master ESP (Chams + Name)",
-   CurrentValue = false,
-   Callback = function(Value)
-      _G.ESP = Value
-      for _, v in pairs(game.Players:GetPlayers()) do
-         if v.Character and v ~= game.Players.LocalPlayer then
-            if Value then
-               local h = Instance.new("Highlight", v.Character)
-               h.Name = "LyzeenESP"
-               h.FillColor = Color3.fromRGB(0, 255, 0)
-            else
-               if v.Character:FindFirstChild("LyzeenESP") then v.Character.LyzeenESP:Destroy() end
-            end
-         end
-      end
    end,
 })
 
 -- [[ TAB MOVEMENT ]] --
 local MoveTab = Window:CreateTab("Movement", 4483362458)
 MoveTab:CreateSlider({
-   Name = "Safe WalkSpeed (Max 20)",
+   Name = "WalkSpeed (Safe 20)",
    Range = {16, 20},
    Increment = 1,
    CurrentValue = 16,
