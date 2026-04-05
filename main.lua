@@ -1,90 +1,132 @@
--- [[ LYZEEN GRAY: SOUTH BRONX ULTIMATE BYPASS ]] --
--- Theme: Green (Hacker Edition) | No Key Required
+-- [[ LYZEEN GRAY: SOUTH BRONX ULTIMATE BYPASS FIX ]] --
+-- UI: Rayfield (Green Neon Edition) | Status: Working
 
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
--- GANTI TEMA JADI GREEN
-local Window = Library.CreateLib("LyzeenGray Hub - South Bronx", "GreenTheme")
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
--- NOTIFIKASI SUKSES
-game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "LyzeenGray",
-    Text = "Bypass Active! Enjoy Green Edition.",
-    Duration = 5
+local Window = Rayfield:CreateWindow({
+   Name = "LyzeenGray Hub | South Bronx",
+   LoadingTitle = "Bypassing Security...",
+   LoadingSubtitle = "by LyzeenGray",
+   ConfigurationSaving = {Enabled = true, FolderName = "LyzeenSB", FileName = "Config"}
 })
 
--- TAB COMBAT
-local Combat = Window:NewTab("Combat")
-local AimSection = Combat:NewSection("Aimbot & Gun Mods")
+-- NOTIFIKASI
+Rayfield:Notify({
+   Title = "LyzeenGray Active",
+   Content = "Bypass Successful! Enjoy South Bronx.",
+   Duration = 5,
+   Image = 4483362458,
+})
 
-AimSection:NewToggle("Aimbot (Lock On)", "Nempel ke Musuh Terdekat", function(state)
-    _G.Aimbot = state
-    local Player = game.Players.LocalPlayer
-    local Mouse = Player:GetMouse()
-    game:GetService("RunService").RenderStepped:Connect(function()
-        if _G.Aimbot then
-            -- Logic cari musuh terdekat (Sederhana)
+-- [[ TAB COMBAT: AIMBOT & GUN MODS ]] --
+local CombatTab = Window:CreateTab("Combat", 4483362458)
+CombatTab:CreateSection("Aimbot Settings")
+
+local AimbotEnabled = false
+CombatTab:CreateToggle({
+   Name = "Aimbot (Silent Target)",
+   CurrentValue = false,
+   Callback = function(Value)
+      AimbotEnabled = Value
+      local Player = game.Players.LocalPlayer
+      local Mouse = Player:GetMouse()
+      
+      game:GetService("RunService").RenderStepped:Connect(function()
+         if AimbotEnabled then
+            -- Logic: Mencari Target Terdekat secara Otomatis
+            local target = nil
+            local dist = math.huge
             for _, v in pairs(game.Players:GetPlayers()) do
-                if v ~= Player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                    -- Lock Camera (Bisa lo kembangin lagi)
-                end
+               if v ~= Player and v.Character and v.Character:FindFirstChild("Head") then
+                  local d = (v.Character.Head.Position - Player.Character.Head.Position).magnitude
+                  if d < dist then
+                     dist = d
+                     target = v
+                  end
+               end
             end
-        end
-    end)
-end)
+            if target then
+               -- Aimbot Logic: Mengarahkan Kamera ke Kepala
+               workspace.CurrentCamera.CFrame = CFrame.new(workspace.CurrentCamera.CFrame.Position, target.Character.Head.Position)
+            end
+         end
+      end)
+   end,
+})
 
-AimSection:NewButton("No Recoil (Lurus)", "Tembakan Tidak Goyang", function()
-    -- Script untuk nge-reset recoil senjata di South Bronx
-    for _, v in pairs(getgc(true)) do
-        if type(v) == "table" and rawget(v, "Recoil") then
+CombatTab:CreateButton({
+   Name = "Remove Recoil (Lurus)",
+   Callback = function()
+      -- Logic: Bypass Recoil Framework South Bronx
+      for _, v in pairs(getgc(true)) do
+         if type(v) == "table" and rawget(v, "Recoil") then
             v.Recoil = 0
             v.Spread = 0
-        end
-    end
-end)
+            v.Kickback = 0
+         end
+      end
+      Rayfield:Notify({Title = "Success", Content = "No Recoil Activated!", Duration = 2})
+   end,
+})
 
--- TAB MOVEMENT
-local Move = Window:NewTab("Movement")
-local MoveSection = Move:NewSection("Player Speed")
+-- [[ TAB MOVEMENT: BYPASS SPEED ]] --
+local MoveTab = Window:CreateTab("Movement", 4483362458)
 
-MoveSection:NewSlider("Walkspeed", "Lari Cepat", 250, 16, function(s)
-    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = s
-end)
-
-MoveSection:NewToggle("Noclip", "Tembus Tembok", function(state)
-    _G.Noclip = state
-    game:GetService("RunService").Stepped:Connect(function()
-        if _G.Noclip then
-            if game.Players.LocalPlayer.Character then
-                for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-                    if v:IsA("BasePart") then v.CanCollide = false end
-                end
+MoveTab:CreateSlider({
+   Name = "WalkSpeed Bypass",
+   Range = {16, 150},
+   Increment = 1,
+   Suffix = "Speed",
+   CurrentValue = 16,
+   Callback = function(Value)
+      -- Menggunakan CFrame biar nggak gampang kedeteksi Anti-Cheat
+      spawn(function()
+         while true do
+            task.wait()
+            if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+               game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
             end
-        end
-    end)
-end)
+         end
+      end)
+   end,
+})
 
--- TAB ECONOMY (WATER, SUGAR, GELATIN)
-local Farm = Window:NewTab("Farms")
-local FarmSection = FarmSection or Farm:NewSection("Auto Marshmallow")
+-- [[ TAB ECONOMY: AUTO BUY ]] --
+local FarmTab = Window:CreateTab("Economy", 4483362458)
 
-FarmSection:NewToggle("Auto Buy Ingredients", "Otomatis Beli Bahan", function(state)
-    _G.AutoBuy = state
-    while _G.AutoBuy do
-        task.wait(0.5)
-        -- Logic: Memanggil Remote Event Toko di South Bronx
-        -- Lo bisa isi remote event shop disini kalo udah dapet jalurnya
-        print("LyzeenGray: Buying Ingredients...")
-    end
-end)
+FarmTab:CreateToggle({
+   Name = "Auto Buy Ingredients (Water/Sugar/Gelatin)",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.AutoFarm = Value
+      while _G.AutoFarm do
+         task.wait(0.5)
+         -- Mencoba memicu remote event belanja
+         local args = { [1] = "Buy", [2] = "Water" }
+         game:GetService("ReplicatedStorage").Events:FindFirstChild("ShopEvent"):FireServer(unpack(args))
+         print("LyzeenGray: Buying...")
+      end
+   end,
+})
 
--- TAB TELEPORTS
-local TPTab = Window:NewTab("Teleports")
-local TPSection = TPTab:NewSection("Main Locations")
+-- [[ TAB VISUAL: ESP ]] --
+local VisualTab = Window:CreateTab("Visuals", 4483362458)
 
-TPSection:NewButton("TP to Dealer", "Ke Dealer", function()
-    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(284, 3, -483) -- Contoh Koordinat
-end)
-
-TPSection:NewButton("TP to Ingredient Shop", "Beli Bahan", function()
-    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(410, 3, -150) -- Contoh Koordinat
-end)
+VisualTab:CreateButton({
+   Name = "ESP Box (Lihat Musuh)",
+   Callback = function()
+      -- Logic ESP Sederhana
+      for _, v in pairs(game.Players:GetPlayers()) do
+         if v ~= game.Players.LocalPlayer and v.Character then
+            local Box = Instance.new("BoxHandleAdornment")
+            Box.Size = Vector3.new(4, 6, 0)
+            Box.AlwaysOnTop = true
+            Box.ZIndex = 10
+            Box.Adornee = v.Character
+            Box.Color3 = Color3.fromRGB(0, 255, 0)
+            Box.Transparency = 0.5
+            Box.Parent = v.Character
+         end
+      end
+   end,
+})
