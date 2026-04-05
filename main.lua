@@ -1,5 +1,5 @@
--- [[ LYZEEN GRAY: SOUTH BRONX ULTIMATE BYPASS FIX ]] --
--- ESP: Box, Name, Health (On/Off) | Theme: Neon Green
+-- [[ LYZEEN GRAY: SOUTH BRONX ULTIMATE BYPASS ]] --
+-- Fitur: Aimbot, ESP Chams, Kepala Gede (1-5), Safe Speed 20
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
@@ -10,124 +10,62 @@ local Window = Rayfield:CreateWindow({
    ConfigurationSaving = {Enabled = true, FolderName = "LyzeenSB", FileName = "Config"}
 })
 
--- [[ SISTEM ESP GLOBAL (SIAP PAKE) ]] --
-local ESPLibrary = {
-    Enabled = false,
-    Boxes = false,
-    Names = false,
-    Health = false,
-    Players = {}
-}
-
-local function CreateESP(Player)
-    local Character = Player.Character or Player.CharacterAdded:Wait()
-    local Head = Character:WaitForChild("Head")
-    local Humanoid = Character:WaitForChild("Humanoid")
-
-    local ESP = {}
-
-    -- [[ ESP BOX ]] --
-    local Box = Instance.new("BoxHandleAdornment")
-    Box.Name = "LyzeenBox"
-    Box.Parent = Head
-    Box.Size = Vector3.new(4, 6, 0.5) -- Sedikit tebal biar keliatan
-    Box.Adornee = Character
-    Box.AlwaysOnTop = true
-    Box.ZIndex = 10
-    Box.Color3 = Color3.fromRGB(0, 255, 0) -- Hijau Neon
-    Box.Transparency = 0.5
-    Box.Visible = false -- Mati dulu
-    ESP.Box = Box
-
-    -- [[ ESP NAME (NAMA) ]] --
-    local Billboard = Instance.new("BillboardGui")
-    Billboard.Name = "LyzeenNames"
-    Billboard.Parent = Head
-    Billboard.AlwaysOnTop = true
-    Billboard.Size = UDim2.new(0, 100, 0, 50)
-    Billboard.StudsOffset = Vector3.new(0, 2.5, 0) -- Diatas kepala
-    Billboard.Visible = false
-
-    local TextLabel = Instance.new("TextLabel")
-    TextLabel.Parent = Billboard
-    TextLabel.BackgroundTransparency = 1
-    TextLabel.Size = UDim2.new(1, 0, 1, 0)
-    TextLabel.TextSize = 14
-    TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Putih biar jelas
-    TextLabel.Font = Enum.Font.GothamBold
-    TextLabel.Text = Player.Name
-    ESP.NameLabel = TextLabel
-    ESP.NameBillboard = Billboard
-
-    -- [[ ESP HEALTH (DARAH) ]] --
-    local HealthLabel = Instance.new("TextLabel")
-    HealthLabel.Parent = Billboard
-    HealthLabel.BackgroundTransparency = 1
-    HealthLabel.Position = UDim2.new(0, 0, 0.5, 0) -- Dibawah nama
-    HealthLabel.Size = UDim2.new(1, 0, 0.5, 0)
-    HealthLabel.TextSize = 12
-    HealthLabel.TextColor3 = Color3.fromRGB(0, 255, 0) -- Mulai Hijau
-    HealthLabel.Font = Enum.Font.GothamMedium
-    HealthLabel.Text = "HP: 100"
-    ESP.HealthLabel = HealthLabel
-
-    -- [[ UPDATE DARAH OTOMATIS ]] --
-    local function UpdateHealth()
-        if Humanoid and ESPLibrary.Health then
-            local Hp = math.floor(Humanoid.Health)
-            HealthLabel.Text = "HP: " .. Hp
-            -- Ganti warna kalo sekarat (Opsional tapi keren)
-            if Hp < 50 then
-                HealthLabel.TextColor3 = Color3.fromRGB(255, 255, 0) -- Kuning
-            elseif Hp < 20 then
-                HealthLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- Merah
-            else
-                HealthLabel.TextColor3 = Color3.fromRGB(0, 255, 0) -- Hijau
-            end
-        end
-    end
-
-    local Connection = Humanoid.HealthChanged:Connect(UpdateHealth)
-    ESP.HealthConnection = Connection
-
-    ESPLibrary.Players[Player.Name] = ESP
-end
-
--- [[ REAKSI KALO PLAYER BARU MASUK ]] --
-game.Players.PlayerAdded:Connect(CreateESP)
-for _, v in pairs(game.Players:GetPlayers()) do
-    if v ~= game.Players.LocalPlayer then
-        spawn(function() CreateESP(v) end)
-    end
-end
-
--- [[ REAKSI KALO PLAYER KELUAR (BERSIHIN ESP) ]] --
-game.Players.PlayerRemoving:Connect(function(Player)
-    if ESPLibrary.Players[Player.Name] then
-        local ESP = ESPLibrary.Players[Player.Name]
-        if ESP.HealthConnection then ESP.HealthConnection:Disconnect() end
-        if ESP.NameBillboard then ESP.NameBillboard:Destroy() end
-        if ESP.Box then ESP.Box:Destroy() end
-        ESPLibrary.Players[Player.Name] = nil
-    end
-end)
-
--- [[ FUNGSI GLOBAL BUAT ON/OFF ]] --
-local function UpdateESPVisibility()
-    for _, ESP in pairs(ESPLibrary.Players) do
-        ESP.Box.Visible = ESPLibrary.Enabled and ESPLibrary.Boxes
-        ESP.NameBillboard.Visible = ESPLibrary.Enabled
-        ESP.NameLabel.Visible = ESPLibrary.Names
-        ESP.HealthLabel.Visible = ESPLibrary.Health
-    end
-end
-
--- [[ TAB COMBAT ]] --
+-- [[ TAB COMBAT: AIMBOT & KEPALA GEDE ]] --
 local CombatTab = Window:CreateTab("Combat", 4483362458)
-CombatTab:CreateSection("Aimbot & Weapon")
+CombatTab:CreateSection("Aimbot & Hitbox")
+
+local AimbotEnabled = false
+CombatTab:CreateToggle({
+   Name = "Aimbot (Lock Head)",
+   CurrentValue = false,
+   Callback = function(Value)
+      AimbotEnabled = Value
+      local Player = game.Players.LocalPlayer
+      game:GetService("RunService").RenderStepped:Connect(function()
+         if AimbotEnabled then
+            local target = nil
+            local dist = math.huge
+            for _, v in pairs(game.Players:GetPlayers()) do
+               if v ~= Player and v.Character and v.Character:FindFirstChild("Head") then
+                  local d = (v.Character.Head.Position - Player.Character.Head.Position).magnitude
+                  if d < dist then
+                     dist = d
+                     target = v
+                  end
+               end
+            end
+            if target then
+               workspace.CurrentCamera.CFrame = CFrame.new(workspace.CurrentCamera.CFrame.Position, target.Character.Head.Position)
+            end
+         end
+      end)
+   end,
+})
+
+-- [[ FITUR KEPALA GEDE (HITBOX) ]] --
+CombatTab:CreateSlider({
+   Name = "KEPALA GEDE (Hitbox)",
+   Range = {1, 5},
+   Increment = 1,
+   CurrentValue = 1,
+   Callback = function(Value)
+      _G.HeadSize = Value
+      spawn(function()
+         while task.wait(1) do
+            for _, v in pairs(game.Players:GetPlayers()) do
+               if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Head") then
+                  v.Character.Head.Size = Vector3.new(Value * 2, Value * 2, Value * 2) -- Skala 1-5
+                  v.Character.Head.CanCollide = false
+                  v.Character.Head.Transparency = 0.5 -- Biar gak terlalu nutupin pandangan
+               end
+            end
+         end
+      end)
+   end,
+})
 
 CombatTab:CreateButton({
-   Name = "No Recoil (Lurus)",
+   Name = "Remove Recoil (Lurus)",
    Callback = function()
       for _, v in pairs(getgc(true)) do
          if type(v) == "table" and rawget(v, "Recoil") then
@@ -135,88 +73,75 @@ CombatTab:CreateButton({
             v.Spread = 0
          end
       end
-      Rayfield:Notify({Title = "Success", Content = "Recoil Removed!", Duration = 2})
    end,
 })
 
--- [[ TAB MOVEMENT ]] --
-local MoveTab = Window:CreateTab("Movement", 4483362458)
-MoveTab:CreateSection("Safe Speed")
+-- [[ TAB VISUALS: ESP CHAMS FIX ]] --
+local VisualsTab = Window:CreateTab("Visuals", 4483362458)
+VisualsTab:CreateSection("ESP Settings")
 
+_G.ESP_Enabled = false
+local function ApplyESP(v)
+    if v ~= game.Players.LocalPlayer and v.Character then
+        if v.Character:FindFirstChild("LyzeenChams") then v.Character.LyzeenChams:Destroy() end
+        
+        local Highlight = Instance.new("Highlight")
+        Highlight.Name = "LyzeenChams"
+        Highlight.Parent = v.Character
+        Highlight.FillColor = Color3.fromRGB(0, 255, 0)
+        Highlight.Enabled = _G.ESP_Enabled
+        
+        if v.Character:FindFirstChild("Head") then
+            local Billboard = Instance.new("BillboardGui", v.Character.Head)
+            Billboard.Name = "LyzeenInfo"
+            Billboard.Size = UDim2.new(0, 100, 0, 50)
+            Billboard.StudsOffset = Vector3.new(0, 3, 0)
+            Billboard.AlwaysOnTop = true
+            Billboard.Enabled = _G.ESP_Enabled
+
+            local Text = Instance.new("TextLabel", Billboard)
+            Text.BackgroundTransparency = 1
+            Text.Size = UDim2.new(1, 0, 1, 0)
+            Text.TextColor3 = Color3.fromRGB(0, 255, 0)
+            Text.Font = Enum.Font.GothamBold
+            Text.TextSize = 12
+            
+            spawn(function()
+                while v.Character and v.Character:FindFirstChild("Humanoid") do
+                    local hp = math.floor(v.Character.Humanoid.Health)
+                    Text.Text = v.Name .. "\n[ HP: " .. hp .. " ]"
+                    task.wait(1)
+                end
+            end)
+        end
+    end
+end
+
+VisualsTab:CreateToggle({
+   Name = "Master ESP (Chams + Name + HP)",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.ESP_Enabled = Value
+      for _, v in pairs(game.Players:GetPlayers()) do ApplyESP(v) end
+   end,
+})
+
+-- [[ TAB MOVEMENT: SAFE SPEED ]] --
+local MoveTab = Window:CreateTab("Movement", 4483362458)
 MoveTab:CreateSlider({
-   Name = "WalkSpeed (Safe Limit)",
+   Name = "WalkSpeed (Max 20)",
    Range = {16, 20},
    Increment = 1,
    CurrentValue = 16,
    Callback = function(Value)
-      _G.SpeedValue = Value
+      _G.Speed = Value
       spawn(function()
-         while _G.SpeedValue == Value do
-            task.wait()
+         while _G.Speed == Value do
             if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
                game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
             end
+            task.wait()
          end
       end)
    end,
 })
-
--- [[ TAB ECONOMY ]] --
-local FarmTab = Window:CreateTab("Economy", 4483362458)
-
-FarmTab:CreateToggle({
-   Name = "Auto Buy Ingredients",
-   CurrentValue = false,
-   Callback = function(Value)
-      _G.AutoFarm = Value
-      while _G.AutoFarm do
-         task.wait(0.8)
-         print("LyzeenGray: Purchasing Water, Sugar, Gelatin...")
-      end
-   end,
-})
-
--- [[ TAB VISUALS (ESP FULL SETTINGS) ]] --
-local VisualsTab = Window:CreateTab("Visuals", 4483362458)
-VisualsTab:CreateSection("ESP Player (On/Off)")
-
--- [[ TOGGLE INDUK (HARUS NYALA BIAR ESP JALAN) ]] --
-VisualsTab:CreateToggle({
-   Name = "Master ESP",
-   CurrentValue = false,
-   Callback = function(Value)
-      ESPLibrary.Enabled = Value
-      UpdateESPVisibility()
-   end,
-})
-
-VisualsTab:CreateSection("ESP Features")
-
-VisualsTab:CreateToggle({
-   Name = "ESP Box (Green Neon)",
-   CurrentValue = false,
-   Callback = function(Value)
-      ESPLibrary.Boxes = Value
-      UpdateESPVisibility()
-   end,
-})
-
-VisualsTab:CreateToggle({
-   Name = "ESP Name (Nama)",
-   CurrentValue = false,
-   Callback = function(Value)
-      ESPLibrary.Names = Value
-      UpdateESPVisibility()
-   end,
-})
-
-VisualsTab:CreateToggle({
-   Name = "ESP Health (Darah)",
-   CurrentValue = false,
-   Callback = function(Value)
-      ESPLibrary.Health = Value
-      UpdateESPVisibility()
-   end,
-})
-
-Rayfield:Notify({Title = "LyzeenGray Hub", Content = "Loaded ESP Full Edition!", Duration = 3})
