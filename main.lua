@@ -1,23 +1,38 @@
--- [[ FITUR AMBIL KORDINAT (UTILITY) ]] --
-TeleportTab:CreateSection("UTILITY COORDINATE")
+-- [[ TAB TELEPORT - FITUR AMBIL KORDINAT SAKTI ]] --
+TeleportTab:CreateSection("GET COORDINATE")
 
 TeleportTab:CreateButton({
-   Name = "Get My Position (Ambil Kordinat)",
+   Name = "AMBIL KORDINAT (AUTO COPY)",
    Callback = function()
-      local Pos = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-      local X = math.floor(Pos.X)
-      local Y = math.ceil(Pos.Y) + 1.5 -- Gue kasih +1.5 biar gak nyungsep pas TP nanti
-      local Z = math.floor(Pos.Z)
+      local Char = game.Players.LocalPlayer.Character
+      local Root = Char:FindFirstChild("HumanoidRootPart")
       
-      -- Munculin di Notifikasi Layar
-      Rayfield:Notify({
-         Title = "Kordinat Ditemukan!",
-         Content = "X: "..X..", Y: "..Y..", Z: "..Z,
-         Duration = 10
-      })
-      
-      -- Munculin di Console (F9) biar bisa di-copy
-      print("Kordinat Baru lo: " .. X .. ", " .. Y .. ", " .. Z)
-      print("Format Script: SafeVehicleTP(CFrame.new("..X..", "..Y..", "..Z.."))")
+      if Root then
+         local X = math.floor(Root.Position.X)
+         local Y = math.floor(Root.Position.Y) + 2 -- Biar gak nyungsep
+         local Z = math.floor(Root.Position.Z)
+         
+         local FinalPos = X .. ", " .. Y .. ", " .. Z
+         
+         -- 1. Munculin Notifikasi Gede (Biar keliatan)
+         Rayfield:Notify({
+            Title = "POSISI DITEMUKAN!",
+            Content = "Kordinat: " .. FinalPos,
+            Duration = 15
+         })
+         
+         -- 2. Munculin Pesan di Chat (Biar lo bisa liat history-nya)
+         game:GetService("StarterGui"):SetCore("ChatMakeSystemMessage", {
+            Text = "[AETHER] Kordinat lo: " .. FinalPos,
+            Color = Color3.fromRGB(50, 255, 50),
+            Font = Enum.Font.SourceSansBold
+         })
+         
+         -- 3. Auto Copy (Biar lo tinggal paste di script)
+         if setclipboard then
+            setclipboard("CFrame.new(" .. FinalPos .. ")")
+            Rayfield:Notify({Title = "Copied!", Content = "Kordinat udah ke-copy, tinggal paste!", Duration = 3})
+         end
+      end
    end,
 })
