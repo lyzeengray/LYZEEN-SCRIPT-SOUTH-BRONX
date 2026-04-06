@@ -1,133 +1,126 @@
--- [[ AETHER 1.0 - STABLE TAB SYSTEM ]] --
-local ScreenGui = Instance.new("ScreenGui")
-local Main = Instance.new("Frame")
-local Sidebar = Instance.new("Frame")
-local TabHolder = Instance.new("Frame")
-local Title = Instance.new("TextLabel")
+-- [[ LYZEEN GRAY HUB: AETHER 1.0 - GREEN EDITION ]] --
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
-ScreenGui.Parent = game.CoreGui
-Main.Name = "AetherFinal"
-Main.Parent = ScreenGui
-Main.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-Main.Position = UDim2.new(0.5, -175, 0.5, -125)
-Main.Size = UDim2.new(0, 350, 0, 250)
-Main.Active = true
-Main.Draggable = true
+local Window = Rayfield:CreateWindow({
+   Name = "LyzeenGray Hub | Aether 1.0",
+   LoadingTitle = "Aether System Loading...",
+   LoadingSubtitle = "by LyzeenGray",
+   ConfigurationSaving = {Enabled = false},
+   KeySystem = false,
+   Theme = "Green" -- Biar ada aksen Hijau Neon
+})
 
--- Sidebar (Tempat Pilih Menu)
-Sidebar.Name = "Sidebar"
-Sidebar.Parent = Main
-Sidebar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-Sidebar.Size = UDim2.new(0, 85, 1, 0)
-
-Title.Parent = Sidebar
-Title.Text = "AETHER"
-Title.TextColor3 = Color3.fromRGB(50, 255, 50)
-Title.Size = UDim2.new(1, 0, 0, 40)
-Title.Font = Enum.Font.SourceSansBold
-Title.TextSize = 16
-
--- Tab Holder (Tempat Isi Konten)
-TabHolder.Name = "TabHolder"
-TabHolder.Parent = Main
-TabHolder.Position = UDim2.new(0.25, 5, 0.05, 5)
-TabHolder.Size = UDim2.new(0.73, 0, 0.9, 0)
-TabHolder.BackgroundTransparency = 1
-
-local function CreatePage(name)
-    local Page = Instance.new("ScrollingFrame")
-    Page.Name = name
-    Page.Parent = TabHolder
-    Page.Size = UDim2.new(1, 0, 1, 0)
-    Page.BackgroundTransparency = 1
-    Page.Visible = false
-    Page.ScrollBarThickness = 2
-    local Layout = Instance.new("UIListLayout")
-    Layout.Parent = Page
-    Layout.Padding = UDim.new(0, 5)
-    return Page
+-- [[ FUNGSI TELEPORT MOTOR ]] --
+local function SafeVehicleTP(TargetCFrame)
+    local Hum = game.Players.LocalPlayer.Character.Humanoid
+    if Hum.SeatPart and Hum.SeatPart:IsA("VehicleSeat") then
+        local Vehicle = Hum.SeatPart.Parent
+        Vehicle:SetPrimaryPartCFrame(TargetCFrame)
+        task.wait(0.1)
+        Vehicle:SetPrimaryPartCFrame(TargetCFrame)
+    else
+        Rayfield:Notify({Title = "Gagal!", Content = "Wajib naik Motor!", Duration = 3})
+    end
 end
 
-local PageTP = CreatePage("TeleportPage")
-local PageCombat = CreatePage("CombatPage")
-local PageCook = CreatePage("CookPage")
+-- [[ TAB 1: TELEPORT (🚀) ]] --
+local TeleportTab = Window:CreateTab("Teleport 🚀", 4483362458) 
 
--- Fungsi Switch Tab
-local function ShowPage(page)
-    PageTP.Visible = false
-    PageCombat.Visible = false
-    PageCook.Visible = false
-    page.Visible = true
-end
+TeleportTab:CreateSection("LOKASI UTAMA")
+TeleportTab:CreateButton({
+   Name = "🚗 Dealership",
+   Callback = function() SafeVehicleTP(CFrame.new(731, 6.5, 443)) end,
+})
+TeleportTab:CreateButton({
+   Name = "👤 Npc Ms",
+   Callback = function() SafeVehicleTP(CFrame.new(517, 6.5, 604)) end,
+})
+TeleportTab:CreateButton({
+   Name = "🔫 Gs mid",
+   Callback = function() SafeVehicleTP(CFrame.new(215, 6.5, -132)) end,
+})
 
-local function AddTabBtn(txt, page, pos)
-    local btn = Instance.new("TextButton")
-    btn.Parent = Sidebar
-    btn.Size = UDim2.new(0.9, 0, 0, 30)
-    btn.Position = UDim2.new(0.05, 0, 0, 50 + (pos * 35))
-    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    btn.Text = txt
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.Font = Enum.Font.SourceSansBold
-    btn.TextSize = 12
-    btn.MouseButton1Click:Connect(function() ShowPage(page) end)
-    local c = Instance.new("UICorner") c.CornerRadius = UDim.new(0, 4) c.Parent = btn
-end
+TeleportTab:CreateSection("LOKASI APARTEMEN")
+TeleportTab:CreateButton({
+   Name = "🏢 APT 1",
+   Callback = function() SafeVehicleTP(CFrame.new(1140, 11, 448)) end, -- Kordinat Foto 1
+})
+TeleportTab:CreateButton({
+   Name = "🏢 APT 2",
+   Callback = function() SafeVehicleTP(CFrame.new(1140, 11, 420)) end, -- Kordinat Foto 2
+})
+TeleportTab:CreateButton({
+   Name = "🏢 APT 3",
+   Callback = function() SafeVehicleTP(CFrame.new(923, 11, 41)) end, -- Kordinat Foto 3
+})
+TeleportTab:CreateButton({
+   Name = "🏢 APT 4",
+   Callback = function() SafeVehicleTP(CFrame.new(894, 11, 40)) end, -- Kordinat Foto 4
+})
 
-AddTabBtn("🚀 Teleport", PageTP, 0)
-AddTabBtn("⚔️ Combat", PageCombat, 1)
-AddTabBtn("🪔 Cooking", PageCook, 2)
+-- [[ TAB 2: COMBAT (⚔️) ]] --
+local CombatTab = Window:CreateTab("Combat ⚔️", 4483362458)
+_G.HeadSize = 1
 
--- Fungsi Komponen
-local function AddBtn(parent, txt, callback)
-    local b = Instance.new("TextButton")
-    b.Parent = parent
-    b.Size = UDim2.new(0.95, 0, 0, 30)
-    b.BackgroundColor3 = Color3.fromRGB(50, 255, 50)
-    b.Text = txt
-    b.Font = Enum.Font.SourceSansBold
-    b.TextSize = 13
-    b.MouseButton1Click:Connect(callback)
-    local c = Instance.new("UICorner") c.CornerRadius = UDim.new(0, 4) c.Parent = b
-end
-
--- [[ ISI TAB TELEPORT ]] --
-local function TP(cf)
-    local Hum = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
-    if Hum and Hum.SeatPart then Hum.SeatPart.Parent:SetPrimaryPartCFrame(cf) end
-end
-
-AddBtn(PageTP, "🚗 Dealership", function() TP(CFrame.new(731, 6.5, 443)) end)
-AddBtn(PageTP, "👤 Npc Ms", function() TP(CFrame.new(517, 6.5, 604)) end)
-AddBtn(PageTP, "🔫 Gs mid", function() TP(CFrame.new(215, 6.5, -132)) end)
-AddBtn(PageTP, "🏢 APT 1", function() TP(CFrame.new(1140, 11, 448)) end)
-AddBtn(PageTP, "🏢 APT 2", function() TP(CFrame.new(1140, 11, 420)) end)
-AddBtn(PageTP, "🏢 APT 3", function() TP(CFrame.new(923, 11, 41)) end)
-AddBtn(PageTP, "🏢 APT 4", function() TP(CFrame.new(894, 11, 40)) end)
-
--- [[ ISI TAB COMBAT ]] --
-_G.HB = 1
-local function ToggleHB(btn)
-    if _G.HB == 1 then _G.HB = 5 btn.Text = "⚔️ HITBOX: ON" btn.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
-    else _G.HB = 1 btn.Text = "⚔️ HITBOX: OFF" btn.BackgroundColor3 = Color3.fromRGB(255, 100, 100) end
-end
-AddBtn(PageCombat, "⚔️ HITBOX: OFF", function() ToggleHB(PageCombat:FindFirstChild("TextButton")) end)
+CombatTab:CreateSlider({
+   Name = "KEPALA GEDE (Hitbox)",
+   Range = {1, 10},
+   Increment = 1,
+   CurrentValue = 1,
+   Callback = function(Value) _G.HeadSize = Value end,
+})
 
 game:GetService("RunService").RenderStepped:Connect(function()
-    if _G.HB > 1 then
+    if _G.HeadSize > 1 then
         for _, v in pairs(game.Players:GetPlayers()) do
             if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Head") then
-                pcall(function() v.Character.Head.Size = Vector3.new(_G.HB, _G.HB, _G.HB) v.Character.Head.CanCollide = false end)
+               pcall(function()
+                  v.Character.Head.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
+                  v.Character.Head.CanCollide = false
+                  v.Character.Head.Massless = true
+               end)
             end
         end
     end
 end)
 
--- [[ ISI TAB COOKING ]] --
-_G.Cook = false
-AddBtn(PageCook, "🪔 AUTO MS: OFF", function()
-    _G.Cook = not _G.Cook
-    PageCook:FindFirstChild("TextButton").Text = _G.Cook and "🪔 AUTO MS: ON" or "🪔 AUTO MS: OFF"
-end)
+-- [[ TAB 3: AUTO MS (🪔) ]] --
+local FarmTab = Window:CreateTab("Auto MS 🪔", 4483362458)
+_G.AutoCook = false
 
-ShowPage(PageTP) -- Start Page
+FarmTab:CreateToggle({
+   Name = "START AUTO COOK",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.AutoCook = Value
+      spawn(function()
+         while _G.AutoCook do
+            local function Act(Item)
+               if not _G.AutoCook then return end
+               local T = game.Players.LocalPlayer.Backpack:FindFirstChild(Item) or game.Players.LocalPlayer.Character:FindFirstChild(Item)
+               if T then
+                  game.Players.LocalPlayer.Character.Humanoid:EquipTool(T)
+                  task.wait(0.7)
+                  -- Spam Interact biar gak gagal
+                  for i = 1, 10 do
+                      if not _G.AutoCook then break end
+                      for _, v in pairs(workspace:GetDescendants()) do
+                         if v:IsA("ProximityPrompt") and (v.Parent.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 15 then
+                            fireproximityprompt(v)
+                         end
+                      end
+                      task.wait(0.1)
+                  end
+               end
+            end
+            Act("Water") task.wait(23)
+            if not _G.AutoCook then break end
+            Act("Sugar") task.wait(0.5)
+            if not _G.AutoCook then break end
+            Act("Gelatin") task.wait(63)
+            if not _G.AutoCook then break end
+            Act("Empty Bag") task.wait(5)
+         end
+      end)
+   end,
+})
