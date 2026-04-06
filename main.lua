@@ -1,30 +1,62 @@
--- [[ LYZEEN GRAY: SOUTH BRONX AUTO COOK REAL TIMING ]] --
--- Flow: Water (E) -> 23s -> Sugar (E) -> Gelatin (E) -> 63s -> Empty Bag (E)
+-- [[ LYZEEN GRAY HUB: AETHER 1.0 - FINAL STABLE ]] --
+-- Theme: Hijau Muda & Dark Grey | Fitur: 3 TP, Auto MS, Anti-Stuck Hitbox
 
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-local VirtualUser = game:GetService("VirtualUser")
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/LYZEEN-GRAY/RedzLibV2/main/Source.lua"))()
 
-local Window = Rayfield:CreateWindow({
-   Name = "LyzeenGray Hub | South Bronx",
-   LoadingTitle = "Bypassing Security...",
-   LoadingSubtitle = "by LyzeenGray",
-   ConfigurationSaving = {Enabled = true, FolderName = "LyzeenSB", FileName = "Config"},
-   KeySystem = false,
-   Theme = "Green"
+local Window = Library:MakeWindow({
+  Title = "LyzeenGray Hub | Aether 1.0",
+  SubTitle = "South Bronx Edition",
+  SideColor = Color3.fromRGB(50, 255, 50), -- Hijau Muda Neon
+  MainColor = Color3.fromRGB(30, 30, 30)   -- Abu-Abu Gelap (Bukan Hitam)
 })
 
--- [[ TAB COOKING (LOGIC FIX) ]] --
-local CookingTab = Window:CreateTab("Cooking", 4483362458)
+-- [[ FUNGSI TELEPORT MOTOR SAKTI ]] --
+local function SafeVehicleTP(TargetCFrame)
+    local Player = game.Players.LocalPlayer
+    local Char = Player.Character
+    local Hum = Char and Char:FindFirstChild("Humanoid")
+    
+    if Hum and Hum.SeatPart and Hum.SeatPart:IsA("VehicleSeat") then
+        local Vehicle = Hum.SeatPart.Parent
+        -- Double TP biar posisi terkunci & gak kena ban
+        Vehicle:SetPrimaryPartCFrame(TargetCFrame)
+        task.wait(0.1)
+        Vehicle:SetPrimaryPartCFrame(TargetCFrame)
+    else
+        Library:Notify("Gagal!", "Wajib naik Motor!", 3)
+    end
+end
+
+-- [[ TAB TELEPORT ]] --
+local TeleportTab = Window:MakeTab({"Teleport", "map"})
+TeleportTab:AddSection("LOKASI (WAJIB MOTOR)")
+
+TeleportTab:AddButton({
+  Name = "NPC MS (Ingredients)",
+  Callback = function() SafeVehicleTP(CFrame.new(517, 6.5, 604)) end
+})
+
+TeleportTab:AddButton({
+  Name = "DEALER (Gun Shop)",
+  Callback = function() SafeVehicleTP(CFrame.new(731, 6.5, 443)) end
+})
+
+TeleportTab:AddButton({
+  Name = "GS MID (Gas Station)",
+  Callback = function() SafeVehicleTP(CFrame.new(215, 6.5, -132)) end
+})
+
+-- [[ TAB FARMING (AUTO MS) ]] --
+local FarmTab = Window:MakeTab({"Farm", "zap"})
 _G.AutoCook = false
 
-CookingTab:CreateToggle({
-   Name = "AUTO COOK MS (REAL TIMING)",
-   CurrentValue = false,
-   Callback = function(Value)
+FarmTab:AddToggle({
+  Name = "Auto Cook MS (Logic Fix)",
+  Default = false,
+  Callback = function(Value)
       _G.AutoCook = Value
       spawn(function()
          while _G.AutoCook do
-            -- Fungsi bantu buat pegang item & interaksi
             local function Action(Item)
                if not _G.AutoCook then return end
                local Tool = game.Players.LocalPlayer.Backpack:FindFirstChild(Item) or game.Players.LocalPlayer.Character:FindFirstChild(Item)
@@ -40,74 +72,49 @@ CookingTab:CreateToggle({
                end
             end
             
-            -- [[ URUTAN SESUAI PERINTAH ]] --
-            
-            -- 1. Water & Interact (E)
-            Action("Water")
-            
-            -- 2. TUNGGU 23 DETIK (Setelah Water)
-            task.wait(23)
-            
+            -- URUTAN MASAK LO:
+            Action("Water")      -- 1. Water (E)
+            task.wait(23)         -- 2. Tunggu 23 detik
             if not _G.AutoCook then break end
             
-            -- 3. Sugar & Interact (E)
-            Action("Sugar")
-            task.wait(0.5) -- Jeda dikit biar gak bug
-            
+            Action("Sugar")      -- 3. Sugar (E)
+            task.wait(0.5)
             if not _G.AutoCook then break end
             
-            -- 4. Gelatin & Interact (E)
-            Action("Gelatin")
-            
-            -- 5. TUNGGU 63 DETIK (Proses Masak)
-            task.wait(63)
-            
+            Action("Gelatin")    -- 4. Gelatin (E)
+            task.wait(63)         -- 5. Tunggu 63 detik
             if not _G.AutoCook then break end
             
-            -- 6. Empty Bag & Interact (E)
-            Action("Empty Bag")
-            task.wait(5) -- Jeda sebelum loop balik ke Water
+            Action("Empty Bag")  -- 6. Empty Bag (E)
+            task.wait(5)
          end
       end)
-   end,
+  end
 })
 
--- [[ TAB TELEPORT (KORDINAT PRESISI) ]] --
-local function SafeVehicleTP(TargetCFrame)
-    local Hum = game.Players.LocalPlayer.Character.Humanoid
-    if Hum.SeatPart and Hum.SeatPart:IsA("VehicleSeat") then
-        local Vehicle = Hum.SeatPart.Parent
-        Vehicle:SetPrimaryPartCFrame(TargetCFrame)
-        task.wait(0.1)
-        Vehicle:SetPrimaryPartCFrame(TargetCFrame)
-    else
-        Rayfield:Notify({Title = "Gagal!", Content = "Wajib naik Motor!", Duration = 3})
-    end
-end
-
-local TPTab = Window:CreateTab("Teleports", 4483362458)
-TPTab:CreateButton({Name = "TP ke NPC MS", Callback = function() SafeVehicleTP(CFrame.new(517, 6.5, 604)) end})
-TPTab:CreateButton({Name = "TP ke DEALER", Callback = function() SafeVehicleTP(CFrame.new(731, 6.5, 443)) end})
-TPTab:CreateButton({Name = "TP ke GS MID", Callback = function() SafeVehicleTP(CFrame.new(215, 6.5, -132)) end})
-
--- [[ TAB COMBAT ]] --
-local CombatTab = Window:CreateTab("Combat", 4483362458)
+-- [[ TAB COMBAT (ANTI-STUCK HITBOX) ]] --
+local CombatTab = Window:MakeTab({"Combat", "crosshair"})
 _G.HeadSize = 1
-CombatTab:CreateSlider({
-   Name = "KEPALA GEDE",
-   Range = {1, 10},
-   Increment = 1,
-   CurrentValue = 1,
-   Callback = function(Value) _G.HeadSize = Value end,
+
+CombatTab:AddSlider({
+  Name = "KEPALA GEDE (Anti-Freeze)",
+  Min = 1,
+  Max = 10,
+  Default = 1,
+  Color = Color3.fromRGB(50, 255, 50),
+  Callback = function(Value) _G.HeadSize = Value end
 })
 
+-- LOOP OPTIMASI BIAR GAK STUCK PAS NEMBAK
 game:GetService("RunService").RenderStepped:Connect(function()
     if _G.HeadSize > 1 then
         for _, v in pairs(game.Players:GetPlayers()) do
             if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Head") then
                pcall(function()
-                  v.Character.Head.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
-                  v.Character.Head.CanCollide = false
+                  local Head = v.Character.Head
+                  Head.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
+                  Head.CanCollide = false -- Agar peluru lewat tanpa lag fisika
+                  Head.Massless = true    -- Menghilangkan berat part agar CPU gak spike
                end)
             end
         end
