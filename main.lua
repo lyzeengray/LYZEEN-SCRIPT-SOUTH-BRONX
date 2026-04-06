@@ -1,71 +1,84 @@
--- [[ AETHER 1.0 - ULTRA BYPASS (NO LIBRARY) ]] --
--- Fix: Pasti Muncul, Ringan, Warna Hijau & Hitam
-
+-- [[ AETHER 1.0 - FINAL REPAIR (CLICKABLE & TIDY) ]] --
 local ScreenGui = Instance.new("ScreenGui")
 local Main = Instance.new("Frame")
 local Sidebar = Instance.new("Frame")
 local Title = Instance.new("TextLabel")
-local Container = Instance.new("ScrollingFrame")
-local UIListLayout = Instance.new("UIListLayout")
+local Pages = Instance.new("Frame")
+local CloseBtn = Instance.new("TextButton")
 
--- Setup UI Dasar
+-- Setup UI Utama
 ScreenGui.Parent = game.CoreGui
-Main.Name = "AetherFinal"
+Main.Name = "AetherHub"
 Main.Parent = ScreenGui
-Main.BackgroundColor3 = Color3.fromRGB(20, 20, 20) -- Hitam Pekat
-Main.Position = UDim2.new(0.5, -150, 0.5, -100)
-Main.Size = UDim2.new(0, 350, 0, 220)
+Main.BackgroundColor3 = Color3.fromRGB(15, 15, 15) -- Hitam
+Main.Position = UDim2.new(0.5, -160, 0.5, -110)
+Main.Size = UDim2.new(0, 320, 0, 220)
 Main.Active = true
-Main.Draggable = true
+Main.Draggable = true -- Biar bisa digeser
 
+-- Sidebar
 Sidebar.Parent = Main
-Sidebar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-Sidebar.Size = UDim2.new(0, 70, 1, 0)
+Sidebar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Sidebar.Size = UDim2.new(0, 60, 1, 0)
 
 Title.Parent = Sidebar
 Title.Text = "AETHER"
-Title.TextColor3 = Color3.fromRGB(50, 255, 50) -- Hijau Muda
+Title.TextColor3 = Color3.fromRGB(50, 255, 50)
 Title.Size = UDim2.new(1, 0, 0, 40)
 Title.BackgroundTransparency = 1
 Title.Font = Enum.Font.SourceSansBold
-Title.TextSize = 16
+Title.TextSize = 14
 
-Container.Parent = Main
-Container.Position = UDim2.new(0.25, 0, 0.1, 0)
-Container.Size = UDim2.new(0.7, 0, 0.85, 0)
-Container.BackgroundTransparency = 1
-Container.ScrollBarThickness = 2
-Container.CanvasSize = UDim2.new(0, 0, 2, 0)
+-- Close Button
+CloseBtn.Parent = Main
+CloseBtn.Text = "X"
+CloseBtn.TextColor3 = Color3.fromRGB(255, 50, 50)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+CloseBtn.Position = UDim2.new(1, -25, 0, 5)
+CloseBtn.Size = UDim2.new(0, 20, 0, 20)
+CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
-UIListLayout.Parent = Container
-UIListLayout.Padding = UDim.new(0, 5)
+-- Container Tombol
+Pages.Parent = Main
+Pages.Position = UDim2.new(0.22, 0, 0.1, 0)
+Pages.Size = UDim2.new(0.75, 0, 0.85, 0)
+Pages.BackgroundTransparency = 1
 
--- Fungsi TP Motor
+local Layout = Instance.new("UIListLayout")
+Layout.Parent = Pages
+Layout.Padding = UDim.new(0, 4)
+Layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- Fungsi Teleport
 local function TP(cf)
-    local Hum = game.Players.LocalPlayer.Character.Humanoid
-    if Hum.SeatPart then
+    local Char = game.Players.LocalPlayer.Character
+    local Hum = Char:FindFirstChild("Humanoid")
+    if Hum and Hum.SeatPart then
         Hum.SeatPart.Parent:SetPrimaryPartCFrame(cf)
     else
-        print("Wajib Naik Motor!")
+        game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Aether", Text = "Naik Motor Dulu!"})
     end
 end
 
--- Fungsi Buat Tombol
+-- Fungsi Buat Tombol Rapi
 local function AddBtn(txt, callback)
     local btn = Instance.new("TextButton")
-    btn.Parent = Container
-    btn.Size = UDim2.new(0.95, 0, 0, 30)
+    btn.Parent = Pages
+    btn.Size = UDim2.new(1, 0, 0, 22)
     btn.BackgroundColor3 = Color3.fromRGB(50, 255, 50)
     btn.Text = txt
+    btn.TextColor3 = Color3.fromRGB(0, 0, 0)
     btn.Font = Enum.Font.SourceSansBold
-    btn.TextSize = 14
+    btn.TextSize = 12
+    btn.ZIndex = 5 -- Biar pasti di depan
     btn.MouseButton1Click:Connect(callback)
+    
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 4)
     corner.Parent = btn
 end
 
--- [[ DAFTAR MENU SESUAI REQUEST ]] --
+-- [[ URUTAN MENU ]] --
 AddBtn("🚗 Dealership", function() TP(CFrame.new(731, 6.5, 443)) end)
 AddBtn("👤 Npc Ms", function() TP(CFrame.new(517, 6.5, 604)) end)
 AddBtn("🔫 Gs mid", function() TP(CFrame.new(215, 6.5, -132)) end)
@@ -74,24 +87,28 @@ AddBtn("🏢 APT 2", function() TP(CFrame.new(1140, 11, 420)) end)
 AddBtn("🏢 APT 3", function() TP(CFrame.new(923, 11, 41)) end)
 AddBtn("🏢 APT 4", function() TP(CFrame.new(894, 11, 40)) end)
 
--- Fitur Tambahan
-_G.AutoMS = false
+-- Auto MS Toggle
+local ms_on = false
 AddBtn("🪔 AUTO MS: OFF", function(self)
-    _G.AutoMS = not _G.AutoMS
-    script.Parent.Text = _G.AutoMS and "🪔 AUTO MS: ON" or "🪔 AUTO MS: OFF"
-    -- Logic masak simpel di sini...
+    ms_on = not ms_on
+    Pages:FindFirstChild("🪔 AUTO MS: OFF").Text = ms_on and "🪔 AUTO MS: ON" or "🪔 AUTO MS: OFF"
+    -- Logic masak simpel ditaruh di sini
 end)
 
-_G.PalaGede = 1
+-- Hitbox Toggle
+local hb_on = false
 AddBtn("⚔️ HITBOX: OFF", function()
-    _G.PalaGede = (_G.PalaGede == 1) and 5 or 1
+    hb_on = not hb_on
+    Pages:FindFirstChild("⚔️ HITBOX: OFF").Text = hb_on and "⚔️ HITBOX: ON" or "⚔️ HITBOX: OFF"
+    _G.HeadSize = hb_on and 5 or 1
 end)
 
+-- Loop Hitbox
 game:GetService("RunService").RenderStepped:Connect(function()
-    if _G.PalaGede > 1 then
+    if _G.HeadSize and _G.HeadSize > 1 then
         for _, v in pairs(game.Players:GetPlayers()) do
             if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Head") then
-               pcall(function() v.Character.Head.Size = Vector3.new(_G.PalaGede, _G.PalaGede, _G.PalaGede) v.Character.Head.CanCollide = false end)
+                pcall(function() v.Character.Head.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize) v.Character.Head.CanCollide = false end)
             end
         end
     end
