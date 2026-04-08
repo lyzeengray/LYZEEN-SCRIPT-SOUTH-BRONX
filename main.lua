@@ -1,67 +1,74 @@
 -- [[ CONFIGURASI ]] --
-local CorrectKey = "LYZEENGANTENG"
+local CorrectKey = "LYZEENHUB" --
+local _G_Cook = false
 
 local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "LyzeenUI"
 ScreenGui.Parent = game.CoreGui
 
--- [[ UI KEY SYSTEM ]] --
+-- [[ MODERN KEY SYSTEM ]] --
 local KeyMain = Instance.new("Frame")
-KeyMain.Size = UDim2.new(0, 300, 0, 150)
-KeyMain.Position = UDim2.new(0.5, -150, 0.5, -75)
-KeyMain.BackgroundColor3 = Color3.fromRGB(20, 22, 28)
+KeyMain.Size = UDim2.new(0, 320, 0, 180)
+KeyMain.Position = UDim2.new(0.5, -160, 0.5, -90)
+KeyMain.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 KeyMain.Parent = ScreenGui
 local kc = Instance.new("UICorner") kc.Parent = KeyMain
 
 local KeyTitle = Instance.new("TextLabel")
-KeyTitle.Text = "LyzeenHub Key System"
-KeyTitle.Size = UDim2.new(1, 0, 0, 40)
-KeyTitle.TextColor3 = Color3.fromRGB(80, 200, 255)
+KeyTitle.Text = "LYZEEN HUB | AUTH"
+KeyTitle.Size = UDim2.new(1, 0, 0, 45)
+KeyTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+KeyTitle.Font = Enum.Font.GothamBold
 KeyTitle.BackgroundTransparency = 1
-KeyTitle.Font = Enum.Font.SourceSansBold
 KeyTitle.Parent = KeyMain
 
 local KeyInput = Instance.new("TextBox")
-KeyInput.Size = UDim2.new(0.8, 0, 0, 35)
-KeyInput.Position = UDim2.new(0.1, 0, 0.35, 0)
-KeyInput.PlaceholderText = "Input Key Here..."
-KeyInput.BackgroundColor3 = Color3.fromRGB(30, 35, 45)
+KeyInput.Size = UDim2.new(0.85, 0, 0, 40)
+KeyInput.Position = UDim2.new(0.075, 0, 0.35, 0)
+KeyInput.PlaceholderText = "Enter Access Key..."
+KeyInput.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
 KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
 KeyInput.Parent = KeyMain
+local ic = Instance.new("UICorner") ic.Parent = KeyInput
 
 local KeyBtn = Instance.new("TextButton")
-KeyBtn.Size = UDim2.new(0.8, 0, 0, 35)
-KeyBtn.Position = UDim2.new(0.1, 0, 0.65, 0)
-KeyBtn.BackgroundColor3 = Color3.fromRGB(80, 200, 255)
-KeyBtn.Text = "CHECK KEY"
+KeyBtn.Size = UDim2.new(0.85, 0, 0, 40)
+KeyBtn.Position = UDim2.new(0.075, 0, 0.65, 0)
+KeyBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+KeyBtn.Text = "VALIDATE"
+KeyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+KeyBtn.Font = Enum.Font.GothamBold
 KeyBtn.Parent = KeyMain
+local bc = Instance.new("UICorner") bc.Parent = KeyBtn
 
--- [[ MAIN HUB (HIDDEN) ]] --
+-- [[ MAIN HUB ]] --
 local Main = Instance.new("Frame")
-Main.Name = "LyzeenHub"
-Main.Size = UDim2.new(0, 480, 0, 350)
-Main.Position = UDim2.new(0.5, -240, 0.5, -175)
-Main.BackgroundColor3 = Color3.fromRGB(20, 22, 28)
+Main.Size = UDim2.new(0, 520, 0, 340)
+Main.Position = UDim2.new(0.5, -260, 0.5, -170)
+Main.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
 Main.Visible = false
 Main.Active = true
 Main.Draggable = true
 Main.Parent = ScreenGui
-local mainCorner = Instance.new("UICorner") mainCorner.Parent = Main
+local mc = Instance.new("UICorner") mc.Parent = Main
 
--- Sidebar
 local Sidebar = Instance.new("Frame")
-Sidebar.Size = UDim2.new(0, 130, 1, 0)
-Sidebar.BackgroundColor3 = Color3.fromRGB(15, 17, 22)
+Sidebar.Size = UDim2.new(0, 150, 1, 0)
+Sidebar.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
 Sidebar.Parent = Main
-local Title = Instance.new("TextLabel")
-Title.Text = "LyzeenHub 🍃"
-Title.Size = UDim2.new(1, 0, 0, 50)
-Title.TextColor3 = Color3.fromRGB(80, 200, 255)
-Title.Font = Enum.Font.SourceSansBold
-Title.Parent = Sidebar
+local sc = Instance.new("UICorner") sc.Parent = Sidebar
+
+local Logo = Instance.new("TextLabel")
+Logo.Text = "LYZEEN HUB"
+Logo.Size = UDim2.new(1, 0, 0, 60)
+Logo.TextColor3 = Color3.fromRGB(0, 170, 255)
+Logo.Font = Enum.Font.GothamBold
+Logo.BackgroundTransparency = 1
+Logo.Parent = Sidebar
 
 local Container = Instance.new("Frame")
-Container.Position = UDim2.new(0, 140, 0, 10)
-Container.Size = UDim2.new(0, 330, 0, 330)
+Container.Position = UDim2.new(0, 160, 0, 15)
+Container.Size = UDim2.new(0, 345, 0, 310)
 Container.BackgroundTransparency = 1
 Container.Parent = Main
 
@@ -71,11 +78,11 @@ local function CreatePage(name)
     Page.Size = UDim2.new(1, 0, 1, 0)
     Page.BackgroundTransparency = 1
     Page.Visible = false
-    Page.ScrollBarThickness = 2
+    Page.ScrollBarThickness = 0
     Page.Parent = Container
     local Layout = Instance.new("UIListLayout")
     Layout.Parent = Page
-    Layout.Padding = UDim.new(0, 8)
+    Layout.Padding = UDim.new(0, 10)
     Pages[name] = Page
     return Page
 end
@@ -86,70 +93,72 @@ local CreditsP = CreatePage("Credits")
 
 local function AddTab(txt, name, pos)
     local b = Instance.new("TextButton")
-    b.Size = UDim2.new(0.9, 0, 0, 35)
-    b.Position = UDim2.new(0.05, 0, 0, 60 + (pos * 45))
-    b.BackgroundColor3 = Color3.fromRGB(30, 35, 45)
+    b.Size = UDim2.new(0.9, 0, 0, 40)
+    b.Position = UDim2.new(0.05, 0, 0, 70 + (pos * 50))
+    b.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
     b.Text = txt
-    b.TextColor3 = Color3.fromRGB(255, 255, 255)
+    b.TextColor3 = Color3.fromRGB(200, 200, 200)
+    b.Font = Enum.Font.GothamSemibold
     b.Parent = Sidebar
+    local tc = Instance.new("UICorner") tc.Parent = b
     b.MouseButton1Click:Connect(function()
         for _, p in pairs(Pages) do p.Visible = false end
         Pages[name].Visible = true
     end)
-    local c = Instance.new("UICorner") c.Parent = b
 end
 
-AddTab("🎭 Teleport", "Teleport", 0)
-AddTab("🍃 Auto Farm", "AutoFarm", 1)
-AddTab("⭐ Credits", "Credits", 2)
+AddTab("Teleport 🗺️", "Teleport", 0)
+AddTab("Auto Farm 🪴", "AutoFarm", 1)
+AddTab("Credits ⭐", "Credits", 2)
 
 -- [[ FITUR AUTO FARM ]] --
 local BuyAmount = 1
 local AmountBox = Instance.new("TextBox")
-AmountBox.Size = UDim2.new(0.95, 0, 0, 35)
-AmountBox.PlaceholderText = "Jumlah Beli MS"
-AmountBox.BackgroundColor3 = Color3.fromRGB(40, 45, 55)
+AmountBox.Size = UDim2.new(0.98, 0, 0, 40)
+AmountBox.PlaceholderText = "Jumlah Beli MS (Input Angka)"
+AmountBox.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
 AmountBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 AmountBox.Parent = FarmP
 AmountBox.FocusLost:Connect(function() BuyAmount = tonumber(AmountBox.Text) or 1 end)
 
 local function BuyItem(item)
     local npc = workspace:FindFirstChild("Lamont Bell")
-    if npc and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - npc.HumanoidRootPart.Position).Magnitude < 15 then
+    if npc and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - npc.HumanoidRootPart.Position).Magnitude < 20 then
         game:GetService("ReplicatedStorage").Events.ShopEvent:FireServer(item)
-    else
-        local n = Instance.new("Hint") n.Text = "Anda harus berada di dekat npc ms" n.Parent = game.Workspace
-        task.wait(2) n:Destroy()
-        return false
+        return true
     end
-    return true
+    return false
 end
 
 local BuyBtn = Instance.new("TextButton")
-BuyBtn.Size = UDim2.new(0.95, 0, 0, 35)
-BuyBtn.Text = "🛒 Start Auto Buy"
-BuyBtn.BackgroundColor3 = Color3.fromRGB(80, 200, 255)
+BuyBtn.Size = UDim2.new(0.98, 0, 0, 45)
+BuyBtn.Text = "🛒 START AUTO BUY MS"
+BuyBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+BuyBtn.Font = Enum.Font.GothamBold
+BuyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 BuyBtn.Parent = FarmP
+local bc1 = Instance.new("UICorner") bc1.Parent = BuyBtn
+
 BuyBtn.MouseButton1Click:Connect(function()
     for i = 1, BuyAmount do
-        if not BuyItem("Water") then break end
-        task.wait(0.5)
-        if not BuyItem("Sugar Block Bag") then break end
-        task.wait(0.5)
-        if not BuyItem("Gelatin") then break end
-        task.wait(0.5)
+        BuyItem("Water") task.wait(0.5)
+        BuyItem("Sugar Block Bag") task.wait(0.5)
+        BuyItem("Gelatin") task.wait(0.5)
     end
 end)
 
-local _G_Cook = false
 local CookBtn = Instance.new("TextButton")
-CookBtn.Size = UDim2.new(0.95, 0, 0, 35)
-CookBtn.Text = "🔥 Start Auto Cook"
-CookBtn.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+CookBtn.Size = UDim2.new(0.98, 0, 0, 45)
+CookBtn.Text = "🔥 START AUTO COOK"
+CookBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+CookBtn.Font = Enum.Font.GothamBold
+CookBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 CookBtn.Parent = FarmP
+local bc2 = Instance.new("UICorner") bc2.Parent = CookBtn
+
 CookBtn.MouseButton1Click:Connect(function()
     _G_Cook = not _G_Cook
-    CookBtn.Text = _G_Cook and "🔥 Stop Auto Cook" or "🔥 Start Auto Cook"
+    CookBtn.Text = _G_Cook and "🔥 STOP AUTO COOK" or "🔥 START AUTO COOK"
     spawn(function()
         while _G_Cook do
             local function Craft(ToolName, WaitT)
@@ -170,52 +179,75 @@ CookBtn.MouseButton1Click:Connect(function()
     end)
 end)
 
--- [[ TELEPORT ]] --
+-- [[ LIST TELEPORT LENGKAP ]] --
 local function AddTP(name, cf)
     local b = Instance.new("TextButton")
-    b.Size = UDim2.new(0.95, 0, 0, 30)
-    b.BackgroundColor3 = Color3.fromRGB(40, 45, 55)
+    b.Size = UDim2.new(0.98, 0, 0, 40)
+    b.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
     b.Text = name
     b.TextColor3 = Color3.fromRGB(255, 255, 255)
+    b.Font = Enum.Font.GothamSemibold
     b.Parent = TeleportP
-    b.MouseButton1Click:Connect(function() game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = cf end)
     local c = Instance.new("UICorner") c.Parent = b
+    b.MouseButton1Click:Connect(function() 
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = cf 
+    end)
 end
+
 AddTP("👤 NPC Lamont Bell", CFrame.new(517, 7, 604))
 AddTP("🏎️ Dealer", CFrame.new(731, 7, 443))
 AddTP("📍 GS Mid", CFrame.new(215, 7, -132))
-AddTP("🏢 APT 1", CFrame.new(1140, 11, 448))
-AddTP("🏢 APT 2", CFrame.new(1140, 11, 420))
-AddTP("🏢 APT 3", CFrame.new(923, 11, 41))
-AddTP("🏢 APT 4", CFrame.new(894, 11, 40))
+AddTP("🏢 Apartment 1", CFrame.new(1140, 11, 448))
+AddTP("🏢 Apartment 2", CFrame.new(1140, 11, 420))
+AddTP("🏢 Apartment 3", CFrame.new(923, 11, 41))
+AddTP("🏢 Apartment 4", CFrame.new(894, 11, 40))
 
--- [[ CREDITS ]] --
-local MainCred = Instance.new("Frame")
-MainCred.Size = UDim2.new(0.95, 0, 0, 120)
-MainCred.BackgroundColor3 = Color3.fromRGB(25, 30, 40)
-MainCred.Parent = CreditsP
-local mc = Instance.new("UICorner") mc.Parent = MainCred
+-- [[ MODERN CREDITS ]] --
+local Card = Instance.new("Frame")
+Card.Size = UDim2.new(0.98, 0, 0, 140)
+Card.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+Card.Parent = CreditsP
+local cc = Instance.new("UICorner") cc.Parent = Card
 
-local StarIcon = Instance.new("TextLabel")
-StarIcon.Text = "⭐" StarIcon.Size = UDim2.new(1, 0, 0, 50) StarIcon.BackgroundTransparency = 1 StarIcon.Parent = MainCred
-local OwnerName = Instance.new("TextLabel")
-OwnerName.Text = "Lyzeen" OwnerName.Position = UDim2.new(0, 0, 0.5, 0) OwnerName.Size = UDim2.new(1, 0, 0, 30) OwnerName.TextColor3 = Color3.fromRGB(255, 255, 255) OwnerName.BackgroundTransparency = 1 OwnerName.Parent = MainCred
+local CLogo = Instance.new("TextLabel")
+CLogo.Text = "⭐"
+CLogo.Size = UDim2.new(1, 0, 0, 50)
+CLogo.TextSize = 35
+CLogo.BackgroundTransparency = 1
+CLogo.Parent = Card
 
-local WarnFrame = Instance.new("Frame")
-WarnFrame.Size = UDim2.new(0.95, 0, 0, 40) WarnFrame.BackgroundColor3 = Color3.fromRGB(150, 0, 0) WarnFrame.Parent = CreditsP
-local WarnText = Instance.new("TextLabel")
-WarnText.Text = "Dont share this script" WarnText.Size = UDim2.new(1, 0, 1, 0) WarnText.TextColor3 = Color3.fromRGB(255, 255, 255) WarnText.BackgroundTransparency = 1 WarnText.Parent = WarnFrame
+local CName = Instance.new("TextLabel")
+CName.Text = "LYZEEN"
+CName.Position = UDim2.new(0, 0, 0.4, 0)
+CName.Size = UDim2.new(1, 0, 0, 30)
+CName.TextColor3 = Color3.fromRGB(255, 255, 255)
+CName.Font = Enum.Font.GothamBold
+CName.BackgroundTransparency = 1
+CName.Parent = Card
 
--- [[ KEY CHECK ]] --
+local WarnBox = Instance.new("Frame")
+WarnBox.Size = UDim2.new(0.9, 0, 0, 40)
+WarnBox.Position = UDim2.new(0.05, 0, 0.65, 0)
+WarnBox.BackgroundColor3 = Color3.fromRGB(180, 40, 40) --
+WarnBox.Parent = Card
+local wc = Instance.new("UICorner") wc.Parent = WarnBox
+
+local WarnTxt = Instance.new("TextLabel")
+WarnTxt.Text = "Dont share this script"
+WarnTxt.Size = UDim2.new(1, 0, 1, 0)
+WarnTxt.TextColor3 = Color3.fromRGB(255, 255, 255)
+WarnTxt.Font = Enum.Font.GothamBold
+WarnTxt.BackgroundTransparency = 1
+WarnTxt.Parent = WarnBox
+
+-- [[ VALIDATION ]] --
 KeyBtn.MouseButton1Click:Connect(function()
     if KeyInput.Text == CorrectKey then
-        KeyMain.Visible = false
+        KeyMain:Destroy()
         Main.Visible = true
         Pages["Teleport"].Visible = true
     else
         KeyInput.Text = ""
-        KeyInput.PlaceholderText = "WRONG KEY!"
-        task.wait(1)
-        KeyInput.PlaceholderText = "Input Key Here..."
+        KeyInput.PlaceholderText = "ACCESS DENIED!"
     end
 end)
