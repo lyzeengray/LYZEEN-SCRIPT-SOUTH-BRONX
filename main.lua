@@ -1,5 +1,5 @@
 -- [[ CONFIGURASI ]] --
-local CorrectKey = "LYZEENHUB-ON-TOP"
+local CorrectKey = "LYZEENGANTENG"
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Parent = game.CoreGui
