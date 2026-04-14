@@ -1,118 +1,87 @@
--- [[ LYZEEN HUB - SOUTH BRONX SUPREME ]] --
+-- [[ LYZEEN HUB - SUPREME AUTHORITY ]] --
 -- Key: LYZ-EEN-HUB
 -- Status: Otoritas Mutlak
 
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local Window = Library.CreateLib("LyzeenHub | South Bronx", "DarkTheme")
-
--- [[ DATA TABLES ]] --
-local LyzeenData = {
+local KeySystem = {
     Key = "LYZ-EEN-HUB",
-    Positions = {
-        Dealership = CFrame.new(517, 5, 604),
-        NpcMs = CFrame.new(731, 5, 443),
-        GsMid = CFrame.new(215, 5, -132)
-    },
-    Items = {"Water", "Sugar Block Bag", "Gelatin", "Empty Bag"},
-    Mallows = {
-        ["Small Marshmallow Bag"] = 0,
-        ["Medium Marshmallow Bag"] = 0,
-        ["Large Marshmallow Bag"] = 0
-    }
+    Version = "1.0.2"
 }
 
--- [[ TAB: TELEPORT ]] --
-local TabTP = Window:NewTab("Teleport")
-local SecTP = TabTP:NewSection("World Locations")
+-- [[ 1. THE GATEKEEPER: KEY SYSTEM ]] --
+local KeyLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local KeyWindow = KeyLibrary.CreateLib("LyzeenHub | Authentication", "DarkTheme")
+local KeyTab = KeyWindow:NewTab("Verification")
+local KeySection = KeyTab:NewSection("Input Secret Key:")
 
-SecTP:NewButton("[🏎️] Dealership", "Teleport ke Dealer", function()
-    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = LyzeenData.Positions.Dealership
-end)
+KeySection:NewTextBox("Enter Key", "Key: LYZ-EEN-HUB", function(input)
+    if input == KeySystem.Key then
+        -- Jika Benar: Tutup jendela key dan load script utama
+        KeyWindow:Destroy()
+        
+        -- [[ 2. MAIN SCRIPT INITIALIZATION ]] --
+        local MainLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+        local MainWin = MainLibrary.CreateLib("LyzeenHub | South Bronx", "DarkTheme")
+        
+        -- TAB: TELEPORT (Dirtbike Detection)
+        local TabTP = MainWin:NewTab("Teleport")
+        local SecTP = TabTP:NewSection("Required: Dirtbike")
 
-SecTP:NewButton("[🍳] Npc Ms", "Teleport ke NPC MS", function()
-    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = LyzeenData.Positions.NpcMs
-end)
+        local function TP(targetCF)
+            local char = game.Players.LocalPlayer.Character
+            local seat = char and char.Humanoid.SeatPart
+            if seat and seat.Parent.Name == "Dirtbike" then
+                seat.Parent:SetPrimaryPartCFrame(targetCF)
+            else
+                game:GetService("StarterGui"):SetCore("SendNotification", {
+                    Title = "ACCESS DENIED",
+                    Text = "Harus pakai Motor (Dirtbike)!",
+                    Duration = 5
+                })
+            end
+        end
 
-SecTP:NewButton("[🔫] Gs Mid", "Teleport ke Gun Shop Mid", function()
-    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = LyzeenData.Positions.GsMid
-end)
+        SecTP:NewButton("[🏎️] Dealership", "Loc: 517, 5, 604", function() TP(CFrame.new(517, 5, 604)) end)
+        SecTP:NewButton("[🍳] Npc Ms", "Loc: 731, 5, 443", function() TP(CFrame.new(731, 5, 443)) end)
+        SecTP:NewButton("[🔫] Gs Mid", "Loc: 215, 5, -132", function() TP(CFrame.new(215, 5, -132)) end)
 
--- [[ TAB: AUTO FARM ]] --
-local TabFarm = Window:NewTab("Auto Farm")
-local SecBuy = TabFarm:NewSection("Auto Buy & Sell (Lamont Bell)")
+        -- TAB: AUTO FARM
+        local TabFarm = MainWin:NewTab("Auto Farm")
+        local SecFarm = TabFarm:NewSection("MALLOW YANG SUDAH JADI")
+        local labelS = SecFarm:NewLabel("🍬 Small Marshmallow = 0")
+        local labelM = SecFarm:NewLabel("🍬 Medium Marshmallow = 0")
+        local labelL = SecFarm:NewLabel("🍬 Large Marshmallow bag = 0")
 
-local buyAmount = 1
-SecBuy:NewSlider("Jumlah Beli", "Max 100", 100, 1, function(s)
-    buyAmount = s
-end)
+        -- TAB: FPS BOOST
+        local TabFPS = MainWin:NewTab("FPS Boost")
+        local SecFPS = TabFPS:NewSection("⚡ Monitoring...")
 
-SecBuy:NewButton("Start Auto Buy", "Beli Water, Sugar, Gelatin", function()
-    -- Logic: Pergi ke Lamont Bell & Fire Server untuk 3 item
-    for i = 1, buyAmount do
-        -- Trigger Remote Beli Water
-        -- Trigger Remote Beli Sugar Block Bag
-        -- Trigger Remote Beli Gelatin
+        spawn(function()
+            while task.wait(0.5) do
+                local currentFps = math.floor(1 / game:GetService("RunService").RenderStepped:Wait())
+                SecFPS:SetSectionName("⚡ " .. currentFps .. " FPS")
+            end
+        end)
+
+        SecFPS:NewToggle("Remove Texture", "Extreme Performance", function(s)
+            for _, v in pairs(game:GetDescendants()) do
+                if v:IsA("BasePart") and s then v.Material = Enum.Material.SmoothPlastic end
+                if (v:IsA("Texture") or v:IsA("Decal")) then v.Transparency = s and 1 or 0 end
+            end
+        end)
+
+        SecFPS:NewToggle("Remove Shadow", "Fix Lighting", function(s)
+            game.Lighting.GlobalShadows = not s
+        end)
+
+        -- TAB: CREDIT
+        local TabCred = MainWin:NewTab("Credit")
+        TabCred:NewSection("      ⭐      ")
+        TabCred:NewSection("    ⭐⭐⭐    ")
+        TabCred:NewSection("  ⭐⭐⭐⭐⭐  ")
+        TabCred:NewSection("CREATED BY LYZEEN")
+
+    else
+        -- Jika Salah: Kick player secara instan
+        game.Players.LocalPlayer:Kick("KEY INVALID [ Lyzeen ]")
     end
 end)
-
-SecBuy:NewButton("Auto Sell All Mallows", "Jual semua stok mallow", function()
-    -- Logic: Cek inventory dan Fire Server untuk setiap bag yang ada
-end)
-
-local SecCook = TabFarm:NewSection("Auto Cook Sequence")
-SecCook:NewToggle("Auto Cook", "Sekuens Masak Otomatis", function(state)
-    _G.Cooking = state
-    while _G.Cooking do
-        -- Step 1: Water
-        -- Hold Water -> Interact E -> wait(23)
-        -- Step 2: Sugar Block
-        -- Hold Sugar -> Interact E -> wait(1)
-        -- Step 3: Gelatin
-        -- Hold Gelatin -> Interact E -> wait(63)
-        -- Step 4: Empty Bag
-        -- Hold Empty Bag -> Interact E
-        task.wait(1)
-    end
-end)
-
-local SecInv = TabFarm:NewSection("MALLOW YANG SUDAH JADI")
-local labelSmall = SecInv:NewLabel("🍬 Small Marshmallow = 0")
-local labelMed = SecInv:NewLabel("🍬 Medium Marshmallow = 0")
-local labelLarge = SecInv:NewLabel("🍬 Large Marshmallow bag = 0")
-
--- Inventory Tracker Loop
-spawn(function()
-    while true do
-        -- Update labels based on player backpack/character inventory
-        task.wait(2)
-    end
-end)
-
--- [[ TAB: FPS BOOST ]] --
-local TabFPS = Window:NewTab("FPS Boost")
-local SecFPS = TabFPS:NewSection("⚡ Calculating FPS...")
-
--- FPS Counter
-spawn(function()
-    local RunService = game:GetService("RunService")
-    while true do
-        local fps = math.floor(1 / RunService.RenderStepped:Wait())
-        SecFPS:SetSectionName("⚡ " .. fps .. " FPS")
-        task.wait(0.5)
-    end
-end)
-
-SecFPS:NewToggle("Remove Texture", "Performa Maksimal", function(state)
-    -- Logic destroy textures
-end)
-
-SecFPS:NewToggle("Remove Shadow", "Matikan bayangan", function(state)
-    game.Lighting.GlobalShadows = not state
-end)
-
--- [[ TAB: CREDITS ]] --
-local TabCred = Window:NewTab("Credit")
-local SecCred = TabCred:NewSection("⭐")
-SecCred:NewLabel("CREATED BY LYZEEN")
-
-print("[🌀] LyzeenHub: Operasional.")
