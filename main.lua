@@ -1,155 +1,181 @@
--- [[ 🔵 LYZEEN HUB - SUPREME COOKING EDITION 🔵 ]] --
--- Fitur: Auto Cook (23s, 1s, 63s), Draggable, Logo LH
+-- [[ 🔵 LYZEEN HUB - SUPREME REBORN 🔵 ]] --
+-- Key: LYZ-EEN-HUB
+-- Status: Otoritas Mutlak (Fix Total)
 
-local Kavo = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local Colors = {
-    SchemeColor = Color3.fromRGB(0, 85, 255),
-    Background = Color3.fromRGB(10, 10, 15),
-    Header = Color3.fromRGB(15, 15, 25),
-    TextColor = Color3.fromRGB(255, 255, 255),
-    ElementColor = Color3.fromRGB(20, 20, 35)
-}
-
--- [[ 🛠️ UI INITIALIZATION ]] --
-local MainWin = Kavo.CreateLib("🔵 LyzeenHub | SOUTH BRONX 🔵", Colors)
-local ScreenGui = game:GetService("CoreGui"):FindFirstChild("🔵 LyzeenHub | SOUTH BRONX 🔵")
-local MainFrame = ScreenGui.Main
-
--- [[ 🔳 SMART MINIMIZE SYSTEM ]] --
-local ToggleGui = Instance.new("ScreenGui")
-ToggleGui.Name = "LyzeenToggle"
-ToggleGui.Parent = game:GetService("CoreGui")
-
+local LyzeenHub = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local TopBar = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local Content = Instance.new("ScrollingFrame")
+local TabButtons = Instance.new("Frame")
 local LH_Logo = Instance.new("TextButton")
-LH_Logo.Parent = ToggleGui
+
+-- [ 🎨 TEMA BIRU LYZEEN ] --
+LyzeenHub.Name = "LyzeenHub"
+LyzeenHub.Parent = game:GetService("CoreGui")
+LyzeenHub.ResetOnSpawn = false
+
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = LyzeenHub
+MainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
+MainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
+MainFrame.Size = UDim2.new(0, 400, 0, 300)
+MainFrame.Active = true
+MainFrame.Draggable = true -- MENU BISA DIGERAKKAN
+
+TopBar.Name = "TopBar"
+TopBar.Parent = MainFrame
+TopBar.BackgroundColor3 = Color3.fromRGB(0, 85, 255)
+TopBar.Size = UDim2.new(1, 0, 0, 35)
+
+Title.Parent = TopBar
+Title.Size = UDim2.new(1, -70, 1, 0)
+Title.Position = UDim2.new(0, 10, 0, 0)
+Title.Text = "🔵 LyzeenHub | SOUTH BRONX"
+Title.TextColor3 = Color3.new(1, 1, 1)
+Title.Font = Enum.Font.FredokaOne
+Title.TextSize = 18
+Title.TextXAlignment = Enum.TextXAlignment.Left
+
+-- [ 🔳 SISTEM MINIMIZE LH ] --
+local MinBtn = Instance.new("TextButton")
+MinBtn.Parent = TopBar
+MinBtn.Size = UDim2.new(0, 30, 0, 30)
+MinBtn.Position = UDim2.new(1, -35, 0, 2)
+MinBtn.Text = "🔳"
+MinBtn.BackgroundColor3 = Color3.fromRGB(0, 60, 180)
+MinBtn.TextColor3 = Color3.new(1, 1, 1)
+
+LH_Logo.Parent = LyzeenHub
+LH_Logo.Size = UDim2.new(0, 60, 0, 60)
+LH_Logo.Position = UDim2.new(0, 20, 0, 150)
 LH_Logo.BackgroundColor3 = Color3.fromRGB(0, 85, 255)
-LH_Logo.Position = UDim2.new(0, 20, 0, 200)
-LH_Logo.Size = UDim2.new(0, 65, 0, 65)
 LH_Logo.Text = "LH"
-LH_Logo.TextColor3 = Color3.fromRGB(255, 255, 255)
-LH_Logo.Font = Enum.Font.LuckiestGuy 
-LH_Logo.TextSize = 35
+LH_Logo.Font = Enum.Font.LuckiestGuy
+LH_Logo.TextSize = 30
+LH_Logo.TextColor3 = Color3.new(1, 1, 1)
 LH_Logo.Visible = false
 LH_Logo.Draggable = true
 
-local Corner = Instance.new("UICorner")
-Corner.CornerRadius = UDim.new(0, 20)
-Corner.Parent = LH_Logo
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 15)
+corner.Parent = LH_Logo
 
-local function ToggleUI()
-    local isVisible = MainFrame.Visible
-    MainFrame.Visible = not isVisible
-    LH_Logo.Visible = isVisible
-end
-LH_Logo.MouseButton1Click:Connect(ToggleUI)
-
--- [[ 🌾 TAB: AUTO FARM & COOK ]] --
-local TabFarm = MainWin:NewTab("🌾 Auto Farm")
-local SecCook = TabFarm:NewSection("🍳 Auto Cook Sequence ⏱️")
-
-SecCook:NewButton("🔳 MINIMIZE MENU", "Sembunyikan menu & munculkan LH", function()
-    ToggleUI()
+MinBtn.MouseButton1Click:Connect(function()
+    MainFrame.Visible = false
+    LH_Logo.Visible = true
 end)
 
--- LOGIC AUTO COOK
-_G.AutoCook = false
-SecCook:NewToggle("🔥 Start Auto Masak", "Otomatis Proses Bahan", function(state)
-    _G.AutoCook = state
+LH_Logo.MouseButton1Click:Connect(function()
+    MainFrame.Visible = true
+    LH_Logo.Visible = false
+end)
+
+-- [ 🔑 KEY SYSTEM LOGIN ] --
+local KeyOverlay = Instance.new("Frame")
+KeyOverlay.Parent = MainFrame
+KeyOverlay.Size = UDim2.new(1, 0, 1, 0)
+KeyOverlay.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
+KeyOverlay.ZIndex = 5
+
+local KeyInput = Instance.new("TextBox")
+KeyInput.Parent = KeyOverlay
+KeyInput.Size = UDim2.new(0, 250, 0, 40)
+KeyInput.Position = UDim2.new(0.5, -125, 0.4, -20)
+KeyInput.PlaceholderText = "Input Key: LYZ-EEN-HUB"
+KeyInput.Text = ""
+KeyInput.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+KeyInput.TextColor3 = Color3.new(1, 1, 1)
+
+local ContinueBtn = Instance.new("TextButton")
+ContinueBtn.Parent = KeyOverlay
+ContinueBtn.Size = UDim2.new(0, 200, 0, 40)
+ContinueBtn.Position = UDim2.new(0.5, -100, 0.6, 0)
+ContinueBtn.BackgroundColor3 = Color3.fromRGB(0, 85, 255)
+ContinueBtn.Text = "➡ CONTINUE ➡"
+ContinueBtn.TextColor3 = Color3.new(1, 1, 1)
+
+ContinueBtn.MouseButton1Click:Connect(function()
+    if KeyInput.Text == "LYZ-EEN-HUB" then
+        KeyOverlay:Destroy()
+    else
+        game.Players.LocalPlayer:Kick("❌ KEY INVALID [ Lyzeen ] ❌")
+    end
+end)
+
+-- [ 🍳 AUTO COOK LOGIC ] --
+local CookSec = Instance.new("TextButton")
+CookSec.Parent = MainFrame
+CookSec.Size = UDim2.new(0, 180, 0, 40)
+CookSec.Position = UDim2.new(0, 10, 0, 50)
+CookSec.Text = "🔥 Start Auto Cook"
+CookSec.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+CookSec.TextColor3 = Color3.new(1, 1, 1)
+
+local isCooking = false
+CookSec.MouseButton1Click:Connect(function()
+    isCooking = not isCooking
+    CookSec.BackgroundColor3 = isCooking and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(30, 30, 45)
+    
     spawn(function()
-        while _G.AutoCook do
+        while isCooking do
             local p = game.Players.LocalPlayer
-            local char = p.Character
-            
-            -- FUNGSI INTERAKSI E (Sesuaikan nama ProximityPrompt jika beda)
-            local function Interact()
-                -- Mengasumsikan ada ProximityPrompt di dekat pemain
-                local root = char:FindFirstChild("HumanoidRootPart")
-                for _, v in pairs(workspace:GetDescendants()) do
-                    if v:IsA("ProximityPrompt") and p:DistanceFromCharacter(v.Parent.Position) < 10 then
-                        fireproximityprompt(v)
+            local function use(name, waitTime)
+                local tool = p.Backpack:FindFirstChild(name) or p.Character:FindFirstChild(name)
+                if tool then
+                    p.Character.Humanoid:EquipTool(tool)
+                    task.wait(0.2)
+                    -- Trigger E
+                    for _, v in pairs(workspace:GetDescendants()) do
+                        if v:IsA("ProximityPrompt") and p:DistanceFromCharacter(v.Parent.Position) < 15 then
+                            fireproximityprompt(v)
+                        end
                     end
+                    task.wait(waitTime)
                 end
             end
-
-            -- STEP 1: WATER (23 Detik)
-            if char:FindFirstChild("Water") or p.Backpack:FindFirstChild("Water") then
-                p.Character.Humanoid:EquipTool(p.Backpack:FindFirstChild("Water") or char:FindFirstChild("Water"))
-                Interact()
-                task.wait(23)
-            end
             
-            if not _G.AutoCook then break end
-
-            -- STEP 2: SUGAR BLOCK BAG (1 Detik)
-            if char:FindFirstChild("Sugar Block Bag") or p.Backpack:FindFirstChild("Sugar Block Bag") then
-                p.Character.Humanoid:EquipTool(p.Backpack:FindFirstChild("Sugar Block Bag") or char:FindFirstChild("Sugar Block Bag"))
-                Interact()
-                task.wait(1)
-            end
-
-            if not _G.AutoCook then break end
-
-            -- STEP 3: GELATIN (63 Detik)
-            if char:FindFirstChild("Gelatin") or p.Backpack:FindFirstChild("Gelatin") then
-                p.Character.Humanoid:EquipTool(p.Backpack:FindFirstChild("Gelatin") or char:FindFirstChild("Gelatin"))
-                Interact()
-                task.wait(63)
-            end
-
-            if not _G.AutoCook then break end
-
-            -- STEP 4: EMPTY BAG (Ambil Hasil)
-            if char:FindFirstChild("Empty Bag") or p.Backpack:FindFirstChild("Empty Bag") then
-                p.Character.Humanoid:EquipTool(p.Backpack:FindFirstChild("Empty Bag") or char:FindFirstChild("Empty Bag"))
-                Interact()
-                task.wait(2)
-            end
-            
+            use("Water", 23)
+            if not isCooking then break end
+            use("Sugar Block Bag", 1)
+            if not isCooking then break end
+            use("Gelatin", 63)
+            if not isCooking then break end
+            use("Empty Bag", 2)
             task.wait(1)
         end
     end)
 end)
 
-local SecInv = TabFarm:NewSection("🍬 MALLOW YANG SUDAH JADI 🍬")
-local labelS = SecInv:NewLabel("🍬 Small Marshmallow = 0")
-local labelM = SecInv:NewLabel("🍬 Medium Marshmallow = 0")
-local labelL = SecInv:NewLabel("🍬 Large Marshmallow bag = 0")
-
--- Loop Tracker Inventory
-spawn(function()
-    while true do
-        local bp = game.Players.LocalPlayer.Backpack
-        local ch = game.Players.LocalPlayer.Character
-        local s, m, l = 0, 0, 0
-        for _, v in pairs(bp:GetChildren()) do
-            if v.Name == "Small Marshmallow Bag" then s = s + 1
-            elseif v.Name == "Medium Marshmallow Bag" then m = m + 1
-            elseif v.Name == "Large Marshmallow bag" then l = l + 1 end
+-- [ 🚀 TELEPORT LOGIC ] --
+local function CreateTP(name, pos, yOffset)
+    local btn = Instance.new("TextButton")
+    btn.Parent = MainFrame
+    btn.Size = UDim2.new(0, 180, 0, 35)
+    btn.Position = UDim2.new(0.5, 10, 0, yOffset)
+    btn.Text = "📍 " .. name
+    btn.BackgroundColor3 = Color3.fromRGB(0, 85, 255)
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    
+    btn.MouseButton1Click:Connect(function()
+        local seat = game.Players.LocalPlayer.Character.Humanoid.SeatPart
+        if seat and seat.Parent.Name == "Dirtbike" then
+            seat.Parent:SetPrimaryPartCFrame(CFrame.new(pos))
+        else
+            print("Butuh Dirtbike!")
         end
-        labelS:SetText("🍬 Small Marshmallow = " .. s)
-        labelM:SetText("🍬 Medium Marshmallow = " .. m)
-        labelL:SetText("🍬 Large Marshmallow bag = " .. l)
-        task.wait(2)
-    end
-end)
-
--- [[ 🚀 TAB: TELEPORT ]] --
-local TabTP = MainWin:NewTab("🚀 Teleport")
-local SecTP = TabTP:NewSection("🏍️ Dirtbike Required 🏍️")
-local function TP(cf)
-    local seat = game.Players.LocalPlayer.Character.Humanoid.SeatPart
-    if seat and seat.Parent.Name == "Dirtbike" then
-        seat.Parent:SetPrimaryPartCFrame(cf)
-    else
-        game:GetService("StarterGui"):SetCore("SendNotification", {Title = "❌ ERROR", Text = "Gunakan Dirtbike!"})
-    end
+    end)
 end
-SecTP:NewButton("[🏎️] Dealership", "📍 517, 5, 604", function() TP(CFrame.new(517, 5, 604)) end)
-SecTP:NewButton("[🍳] Npc Ms", "📍 731, 5, 443", function() TP(CFrame.new(731, 5, 443)) end)
-SecTP:NewButton("[🔫] Gs Mid", "📍 215, 5, -132", function() TP(CFrame.new(215, 5, -132)) end)
 
--- [[ ⭐ TAB: CREDITS ]] --
-local TabCred = MainWin:NewTab("⭐ Credits")
-TabCred:NewSection("          🌟          ")
-TabCred:NewSection("      ⭐ LYZEEN ⭐     ")
-TabCred:NewSection("🔵 CREATED BY LYZEEN 🔵")
+CreateTP("Dealership", Vector3.new(517, 5, 604), 50)
+CreateTP("Npc Ms", Vector3.new(731, 5, 443), 90)
+CreateTP("Gs Mid", Vector3.new(215, 5, -132), 130)
+
+-- [ ⭐ CREDIT ] --
+local cr = Instance.new("TextLabel")
+cr.Parent = MainFrame
+cr.Size = UDim2.new(1, 0, 0, 30)
+cr.Position = UDim2.new(0, 0, 1, -30)
+cr.Text = "🌟 CREATED BY LYZEEN 🌟"
+cr.TextColor3 = Color3.fromRGB(0, 85, 255)
+cr.BackgroundTransparency = 1
