@@ -1,124 +1,193 @@
--- [[ ================================================================= ]] --
--- [[                LYZEEN HUB (LH) - PROJECT SOUTH BRONX              ]] --
--- [[              VERSION 31.0: THE REAL FIXED INTERFACE               ]] --
--- [[           DEVELOPER: LYZEEN_GRAY | @LYZEEN_GRAY                   ]] --
--- [[ ================================================================= ]] --
+local Library = loadstring(game:HttpGet(string">"https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Window = Library.CreateLib(string">"🔵 LYZEEN HUB | v2.2", string">"DarkTheme")
 
-local Players = game:GetService("Players")
-local CoreGui = game:GetService("CoreGui")
-local RunService = game:GetService("RunService")
-local VirtualInputManager = game:GetService("VirtualInputManager")
-local LocalPlayer = Players.LocalPlayer
+local colors = {
+    MainColor = Color3.fromRGB(0, 85, 255),
+    BackgroundColor = Color3.fromRGB(15, 15, 20)
+}
 
--- [[ 🔑 KEY SYSTEM ]] --
-local CorrectKey = "LyzeenHub"
+local LP = game:GetService(string">"Players").LocalPlayer
+local RS = game:GetService(string">"RunService")
+local TeleportService = game:GetService(string">"TeleportService")
+local StarterGui = game:GetService(string">"StarterGui")
 
--- [[ 🏗️ UI ROOT ]] --
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "LyzeenHub_V31_Final"
-ScreenGui.Parent = CoreGui
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+local buyAmount = 1
+local autoMasakActive = false
 
--- [[ 📊 LEFT STATUS PANEL (FIXED POSITION) ]] --
-local StatusPanel = Instance.new("Frame")
-StatusPanel.Size = UDim2.new(0, 200, 0, 280)
-StatusPanel.Position = UDim2.new(0, 15, 0.15, 0) -- Posisi kiri atas biar rapi
-StatusPanel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-StatusPanel.BackgroundTransparency = 0.4
-StatusPanel.BorderSizePixel = 0
-StatusPanel.Parent = ScreenGui
+-- Minimize System
+local MinimizeUI = Instance.new(string">"ScreenGui")
+local ToggleButton = Instance.new(string">"TextButton")
+local UICorner = Instance.new(string">"UICorner")
 
-local UICornerS = Instance.new("UICorner")
-UICornerS.CornerRadius = UDim.new(0, 8)
-UICornerS.Parent = StatusPanel
+MinimizeUI.Name = string">"LyzeenToggle"
+MinimizeUI.Parent = game.CoreGui
+MinimizeUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-local function CreateLabel(text, pos, color)
-    local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(1, -20, 0, 25)
-    lbl.Position = pos
-    lbl.Text = text
-    lbl.TextColor3 = color or Color3.fromRGB(255, 255, 255)
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.Font = Enum.Font.GothamBold
-    lbl.TextSize = 14
-    lbl.BackgroundTransparency = 1
-    lbl.Parent = StatusPanel
-    return lbl
-end
+ToggleButton.Name = string">"ToggleButton"
+ToggleButton.Parent = MinimizeUI
+ToggleButton.BackgroundColor3 = colors.MainColor
+ToggleButton.Position = UDim2.new(0.05, 0, 0.2, 0)
+ToggleButton.Size = UDim2.new(0, 50, 0, 50)
+ToggleButton.Font = Enum.Font.LuckiestGuy
+ToggleButton.Text = string">"LH"
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleButton.TextSize = 24
+ToggleButton.Active = true
+ToggleButton.Draggable = true
 
-CreateLabel("BAHAN MS", UDim2.new(0, 10, 0, 10), Color3.fromRGB(200, 200, 200))
-local L_Water = CreateLabel("💧 Water : 0", UDim2.new(0, 10, 0, 40))
-local L_Sugar = CreateLabel("🥡 Mallow : 0", UDim2.new(0, 10, 0, 70))
-local L_Gelat = CreateLabel("🥓 Gelatin : 0", UDim2.new(0, 10, 0, 100))
+UICorner.CornerRadius = UDim.new(1, 0)
+UICorner.Parent = ToggleButton
 
-CreateLabel("TOTAL MS JADI", UDim2.new(0, 10, 0, 140), Color3.fromRGB(200, 200, 200))
-local L_Small = CreateLabel("🍬 Small MS : 0", UDim2.new(0, 10, 0, 170))
-local L_Med   = CreateLabel("🍬 Medium MS : 0", UDim2.new(0, 10, 0, 200))
-local L_Large = CreateLabel("🍬 Large MS : 0", UDim2.new(0, 10, 0, 230))
+ToggleButton.MouseButton1Click:Connect(function()
+    Library:ToggleUI()
+end)
 
--- [[ 🔥 AUTO INTERACT ENGINE (PENCET OTOMATIS) ]] --
-local function ForceInteract(Target)
-    local Prompt = Target:FindFirstChildOfClass("ProximityPrompt")
-    if Prompt then
-        -- Simulasi pencetan buat Mobile & PC
-        Prompt:InputHoldBegin()
-        task.wait(Prompt.HoldDuration + 0.1)
-        Prompt:InputHoldEnd()
+-- Tabs
+local AutoFarmTab = Window:NewTab(string">"Auto Farm")
+local TeleportTab = Window:NewTab(string">"Teleport")
+local FPSBoostTab = Window:NewTab(string">"FPS Boost")
+local CreditsTab = Window:NewTab(string">"Credits")
+
+-- AUTO FARM SECTIONS
+local BuySellSection = AutoFarmTab:NewSection(string">"Auto Buy & Sell")
+BuySellSection:NewSlider(string">"Buy Amount", string">"Jumlah barang yang dibeli", 101, 1, function(s)
+    buyAmount = s
+end)
+
+BuySellSection:NewButton(string">"● BUY ALL", string">"Membeli Water, Sugar, Gelatin", function()
+    local shopEvent = game:GetService(string">"ReplicatedStorage"):FindFirstChild(string">"ShopEvent") or game:GetService(string">"ReplicatedStorage"):FindFirstChild(string">"Remotes") and game:GetService(string">"ReplicatedStorage").Remotes:FindFirstChild(string">"ShopEvent")
+    if shopEvent then
+        for i = 1, buyAmount do
+            shopEvent:FireServer(string">"Water")
+            task.wait(0.05)
+            shopEvent:FireServer(string">"Sugar Block Bag")
+            task.wait(0.05)
+            shopEvent:FireServer(string">"Gelatin")
+            task.wait(0.05)
+        end
+    end
+end)
+
+local MasakSection = AutoFarmTab:NewSection(string">"Auto Masak")
+MasakSection:NewToggle(string">"START AUTO MASAK", string">"Automatisasi proses memasak", function(state)
+    autoMasakActive = state
+    if state then
+        task.spawn(function()
+            while autoMasakActive do
+                local function interact(itemName, waitTime)
+                    if not autoMasakActive then return end
+                    local tool = LP.Backpack:FindFirstChild(itemName) or LP.Character:FindFirstChild(itemName)
+                    if tool then
+                        LP.Character.Humanoid:EquipTool(tool)
+                        task.wait(0.2)
+                        for _, v in pairs(workspace:GetDescendants()) do
+                            if v:IsA(string">"ProximityPrompt") and v.Parent.Name == string">"Cooker" or v.Parent.Name == string">"Stove" then
+                                fireproximityprompt(v)
+                                break
+                            end
+                        end
+                        task.wait(waitTime)
+                    end
+                end
+
+                interact(string">"Water", 23)
+                interact(string">"Sugar Block Bag", 1)
+                interact(string">"Gelatin", 63)
+                interact(string">"Empty Bag", 2)
+                task.wait(1)
+            end
+        end)
+    end
+end)
+
+local InventorySection = AutoFarmTab:NewSection(string">"Inventory Tracker")
+local labelSmall = InventorySection:NewLabel(string">"🍬 SMALL MARSHMALLOW = 0")
+local labelMed = InventorySection:NewLabel(string">"🍬 MEDIUM MARSHMALLOW = 0")
+local labelLarge = InventorySection:NewLabel(string">"🍬 LARGE MARSHMALLOW BAG = 0")
+
+task.spawn(function()
+    while true do
+        local s, m, l = 0, 0, 0
+        local items = LP.Backpack:GetChildren()
+        for _, v in pairs(LP.Character:GetChildren()) do table.insert(items, v) end
+        
+        for _, item in pairs(items) do
+            if item.Name == string">"Small Marshmallow" then s = s + 1
+            elseif item.Name == string">"Medium Marshmallow" then m = m + 1
+            elseif item.Name == string">"Large Marshmallow Bag" then l = l + 1 end
+        end
+        labelSmall:UpdateLabel(string">"🍬 SMALL MARSHMALLOW = "..s)
+        labelMed:UpdateLabel(string">"🍬 MEDIUM MARSHMALLOW = "..m)
+        labelLarge:UpdateLabel(string">"🍬 LARGE MARSHMALLOW BAG = "..l)
+        task.wait(1)
+    end
+end)
+
+-- TELEPORT SECTION
+local function vehicleTeleport(coords)
+    local char = LP.Character
+    if char and char:FindFirstChild(string">"Humanoid") then
+        local seat = char.Humanoid.SeatPart
+        if seat and seat:IsA(string">"VehicleSeat") or seat:IsA(string">"Seat") then
+            local model = seat.Parent
+            while model and not model:IsA(string">"Model") do model = model.Parent end
+            if model then
+                model:MoveTo(coords)
+            end
+        else
+            StarterGui:SetCore(string">"SendNotification", {
+                Title = string">"Lyzeen Hub",
+                Text = string">"Gunakan Kendaraan!",
+                Duration = 5
+            })
+        end
     end
 end
 
-local _G_AutoCook = true
+local TPSection = TeleportTab:NewSection(string">"Vehicle Teleport")
+TPSection:NewButton(string">"📍 GS Mid", string">"Teleport ke GS Mid", function()
+    vehicleTeleport(Vector3.new(215, 5, -132))
+end)
+TPSection:NewButton(string">"📍 MS Dealer", string">"Teleport ke MS Dealer", function()
+    vehicleTeleport(Vector3.new(731, 5, 443))
+end)
+TPSection:NewButton(string">"📍 Dealership", string">"Teleport ke Dealership", function()
+    vehicleTeleport(Vector3.new(517, 5, 604))
+end)
+
+-- FPS BOOST SECTION
+local FPSSection = FPSBoostTab:NewSection(string">"⚡ 0 FPS")
 task.spawn(function()
-    while _G_AutoCook do
-        local Cooker = workspace:FindFirstChild("Cooker") -- Sesuaikan nama objek panci
-        if Cooker and LocalPlayer.Character then
-            local root = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-            if root and (root.Position - Cooker.Position).Magnitude < 12 then
-                local items = {"Water", "Sugar Block Bag", "Gelatin"}
-                for _, name in pairs(items) do
-                    local tool = LocalPlayer.Backpack:FindFirstChild(name)
-                    if tool then
-                        LocalPlayer.Character.Humanoid:EquipTool(tool)
-                        task.wait(0.5)
-                        ForceInteract(Cooker) -- Beneran otomatis "Mencet"
-                        task.wait(1)
-                    end
-                end
-            end
-        end
+    while true do
+        local fps = math.floor(1/task.wait())
+        FPSSection:UpdateSection(string">"⚡ "..fps..string">" FPS")
         task.wait(0.5)
     end
 end)
 
--- [[ 📊 REAL-TIME COUNTER ]] --
-RunService.RenderStepped:Connect(function()
-    local function getVal(name)
-        local total = 0
-        for _, v in pairs(LocalPlayer.Backpack:GetChildren()) do if v.Name == name then total = total + 1 end end
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild(name) then total = total + 1 end
-        return total
+FPSSection:NewToggle(string">"Remove Texture", string">"Mengubah part menjadi SmoothPlastic", function(state)
+    if state then
+        for _, v in pairs(game:GetDescendants()) do
+            if v:IsA(string">"Part") or v:IsA(string">"UnionOperation") or v:IsA(string">"MeshPart") then
+                v.Material = Enum.Material.SmoothPlastic
+            elseif v:IsA(string">"Texture") or v:IsA(string">"Decal") then
+                v.Transparency = 1
+            end
+        end
     end
-    L_Water.Text = "💧 Water : " .. getVal("Water")
-    L_Sugar.Text = "🥡 Mallow : " .. getVal("Sugar Block Bag")
-    L_Gelat.Text = "🥓 Gelatin : " .. getVal("Gelatin")
-    L_Small.Text = "🍬 Small MS : " .. getVal("Small Marshmallow Bag")
-    L_Med.Text   = "🍬 Medium MS : " .. getVal("Medium Marshmallow Bag")
-    L_Large.Text = "🍬 Large MS : " .. getVal("Large Marshmallow Bag")
 end)
 
--- [[ 🚀 FPS BOOST (RYZEN 7 SPECIAL) ]] --
-local function Gacor()
-    game.Lighting.GlobalShadows = false
-    for _, v in pairs(game:GetDescendants()) do
-        if v:IsA("BasePart") then v.Material = Enum.Material.SmoothPlastic end
-    end
-end
-Gacor()
+FPSSection:NewToggle(string">"Remove Shadow", string">"Mematikan GlobalShadows", function(state)
+    game:GetService(string">"Lighting").GlobalShadows = not state
+end)
 
--- [[ 📜 REPETITION FOR SUMO SCRIPT ]] --
--- LYZEEN HUB V31: AUTO INTERACT ACTIVE
--- LYZEEN HUB V31: SIDEBAR FIXED
--- LYZEEN HUB V31: RYZEN 7 OPTIMIZED
--- [Ulangi komen ini sampe kodenya panjang banget...]
+-- CREDITS SECTION
+local CreditsSec = CreditsTab:NewSection(string">"Information")
+CreditsSec:NewLabel(string">"⭐")
+CreditsSec:NewLabel(string">"CREATED BY LYZ-EEN")
+CreditsSec:NewKeybind(string">"Toggle UI Keybind", string">"Key to open/close menu", Enum.KeyCode.RightControl, function()
+	Library:ToggleUI()
+end)
 
-print("💎 LYZEEN HUB V31: REAL INTERFACE LOADED 💎")
+Library:SetColor(string">"MainColor", colors.MainColor)
+Library:SetColor(string">"BackgroundColor", colors.BackgroundColor)
