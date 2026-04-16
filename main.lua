@@ -1,216 +1,173 @@
-local Library = loadstring(game:HttpGet(string">"https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local Window = Library.CreateLib(string">"🔵 LYZEEN HUB | v2.2", {
-    [string">"themeList"] = {
-        [string">"Lyzeen"] = {
-            [string">"SchemeColor"] = Color3.fromRGB(0, 85, 255),
-            [string">"Background"] = Color3.fromRGB(15, 15, 20),
-            [string">"Header"] = Color3.fromRGB(20, 20, 30),
-            [string">"TextColor"] = Color3.fromRGB(255, 255, 255),
-            [string">"ElementColor"] = Color3.fromRGB(25, 25, 30)
-        }
-    }
-})
-Window:ChangeTheme(string">"Lyzeen")
+-- [[ 🔵 LYZEEN HUB v2.2 - INDUSTRIAL GRADE 🔵 ]] --
+-- Optimizer: Delta & Xeno Stable
+-- Features: Precise Auto Cook, Vehicle Teleport, Live Inventory
 
-local Players = game:GetService(string">"Players")
-local Player = Players.LocalPlayer
-local Character = Player.Character or Player.CharacterAdded:Wait()
-local RunService = game:GetService(string">"RunService")
-local ReplicatedStorage = game:GetService(string">"ReplicatedStorage")
-local Lighting = game:GetService(string">"Lighting")
+local Kavo = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Colors = {
+    SchemeColor = Color3.fromRGB(0, 85, 255),
+    Background = Color3.fromRGB(15, 15, 20),
+    Header = Color3.fromRGB(20, 20, 30),
+    TextColor = Color3.fromRGB(255, 255, 255),
+    ElementColor = Color3.fromRGB(25, 25, 40)
+}
 
-local MainGUI = game:GetService(string">"CoreGui"):FindFirstChild(string">"🔵 LYZEEN HUB | v2.2") or game:GetService(string">"CoreGui"):WaitForChild(string">"Library")
-local MainFrame = MainGUI:FindFirstChild(string">"Main") or MainGUI.Enabled
+-- [[ 🛠️ UI INITIALIZATION ]] --
+local MainWin = Kavo.CreateLib("🔵 LYZEEN HUB | v2.2", Colors)
+local MainFrame = game:GetService("CoreGui"):FindFirstChild("🔵 LYZEEN HUB | v2.2").Main
 
-local ToggleGUI = Instance.new(string">"ScreenGui")
-local ToggleButton = Instance.new(string">"TextButton")
-local UICorner = Instance.new(string">"UICorner")
+-- [[ 🔳 MINIMIZE SYSTEM (LH LOGO) ]] --
+local MinimizeUI = Instance.new("ScreenGui")
+MinimizeUI.Name = "LyzeenMinimize"
+MinimizeUI.Parent = game:GetService("CoreGui")
 
-ToggleGUI.Name = string">"LyzeenToggle"
-ToggleGUI.Parent = game:GetService(string">"CoreGui")
-ToggleGUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+local LH = Instance.new("TextButton")
+LH.Parent = MinimizeUI
+LH.Size = UDim2.new(0, 60, 0, 60)
+LH.Position = UDim2.new(0, 20, 0, 200)
+LH.BackgroundColor3 = Color3.fromRGB(0, 85, 255)
+LH.Text = "LH"
+LH.Font = Enum.Font.LuckiestGuy
+LH.TextSize = 30
+LH.TextColor3 = Color3.new(1, 1, 1)
+LH.Visible = false
+LH.Draggable = true -- Support Mobile Drag
+Instance.new("UICorner", LH).CornerRadius = UDim.new(0, 15)
 
-ToggleButton.Name = string">"ToggleButton"
-ToggleButton.Parent = ToggleGUI
-ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 85, 255)
-ToggleButton.Position = UDim2.new(0.05, 0, 0.2, 0)
-ToggleButton.Size = UDim2.new(0, 60, 0, 60)
-ToggleButton.Font = Enum.Font.LuckiestGuy
-ToggleButton.Text = string">"LH"
-ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ToggleButton.TextSize = 30
-ToggleButton.Visible = false
-ToggleButton.Draggable = true
-
-UICorner.CornerRadius = UDim.new(1, 0)
-UICorner.Parent = ToggleButton
-
-ToggleButton.MouseButton1Click:Connect(function()
-    MainGUI.Enabled = true
-    ToggleButton.Visible = false
-end)
-
-local function HideUI()
-    MainGUI.Enabled = false
-    ToggleButton.Visible = true
+local function ToggleUI()
+    local isVisible = MainFrame.Visible
+    MainFrame.Visible = not isVisible
+    LH.Visible = isVisible
 end
 
-local Tab1 = Window:NewTab(string">"Auto Farm")
-local FarmSection = Tab1:NewSection(string">"Auto Buy & Sell")
-local CookSection = Tab1:NewSection(string">"Auto Cook(Precision Sequence)")
-local InvSection = Tab1:NewSection(string">"Inventory Tracker")
+LH.MouseButton1Click:Connect(ToggleUI)
 
-local buyAmount = 1
-FarmSection:NewSlider(string">"Jumlah Buy", string">"Amount to buy", 101, 1, function(s)
-    buyAmount = s
-end)
+-- [[ 🌾 TAB 1: AUTO FARM (MASTER ENGINE) ]] --
+local TabFarm = MainWin:NewTab("🌾 Auto Farm")
 
-FarmSection:NewButton(string">"● BUY ALL", string">"Buy Water, Sugar, Gelatin", function()
-    local items = {string">"Water", string">"Sugar Block Bag", string">"Gelatin"}
-    for _, item in pairs(items) do
-        for i = 1, buyAmount do
-            ReplicatedStorage.Events.ShopEvent:FireServer(item, 1)
-            task.wait(0.08)
-        end
+-- Section: Auto Buy
+local SecBuy = TabFarm:NewSection("🛒 Auto Buy & Sell 💵")
+SecBuy:NewButton("🔳 MINIMIZE MENU", "Klik untuk munculkan logo LH", ToggleUI)
+
+local buyAmt = 50
+SecBuy:NewSlider("🔢 Jumlah Buy:", "Geser jumlah item", 101, 1, function(s) buyAmt = s end)
+
+SecBuy:NewButton("🔵 BUY ALL (Materials)", "Beli Water, Sugar, Gelatin", function()
+    local shop = game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("ShopEvent")
+    for i = 1, buyAmt do
+        shop:FireServer("Water")
+        task.wait(0.08)
+        shop:FireServer("Sugar Block Bag")
+        task.wait(0.08)
+        shop:FireServer("Gelatin")
+        task.wait(0.1)
     end
 end)
 
-local autoCook = false
-CookSection:NewToggle(string">"START AUTO MASAK", string">"Recursive Auto Cooker", function(state)
-    autoCook = state
-    task.spawn(function()
-        while autoCook do
-            local cooker = nil
-            for _, v in pairs(workspace:GetDescendants()) do
-                if v:IsA(string">"ProximityPrompt") and (v.Parent.Name:find(string">"Cooker") or v.Parent.Name:find(string">"Stove")) then
-                    cooker = v
-                    break
-                end
-            end
-            
-            if cooker then
-                local function equip(name)
-                    local tool = Player.Backpack:FindFirstChild(name)
-                    if tool then
-                        Player.Character.Humanoid:EquipTool(tool)
-                        return true
+-- Section: Auto Cook (The Precise Sequence)
+local SecCook = TabFarm:NewSection("🍳 Auto Cook Sequence ⏱️")
+_G.AutoCook = false
+SecCook:NewToggle("🔥 START AUTO MASAK", "Sekuens Masak Otomatis", function(state)
+    _G.AutoCook = state
+    spawn(function()
+        while _G.AutoCook do
+            local p = game.Players.LocalPlayer
+            local function cook(name, duration)
+                if not _G.AutoCook then return end
+                local tool = p.Backpack:FindFirstChild(name) or p.Character:FindFirstChild(name)
+                if tool then
+                    p.Character.Humanoid:EquipTool(tool)
+                    task.wait(0.5)
+                    for _, v in pairs(workspace:GetDescendants()) do
+                        if v:IsA("ProximityPrompt") and p:DistanceFromCharacter(v.Parent.Position) < 12 then
+                            fireproximityprompt(v)
+                        end
                     end
-                    return false
-                end
-
-                if equip(string">"Water") then 
-                    fireproximityprompt(cooker)
-                    task.wait(23)
-                end
-                if equip(string">"Sugar Block Bag") then 
-                    fireproximityprompt(cooker)
-                    task.wait(1)
-                end
-                if equip(string">"Gelatin") then 
-                    fireproximityprompt(cooker)
-                    task.wait(63)
-                end
-                if equip(string">"Empty Bag") then 
-                    fireproximityprompt(cooker)
-                    task.wait(2)
+                    task.wait(duration)
                 end
             end
-            task.wait(0.5)
+            cook("Water", 23)
+            cook("Sugar Block Bag", 1)
+            cook("Gelatin", 63)
+            cook("Empty Bag", 2)
+            task.wait(1)
         end
     end)
 end)
 
-local labelSmall = InvSection:NewLabel(string">"🍬 SMALL MARSHMALLOW = 0")
-local labelMedium = InvSection:NewLabel(string">"🍬 MEDIUM MARSHMALLOW = 0")
-local labelLarge = InvSection:NewLabel(string">"🍬 LARGE MARSHMALLOW BAG = 0")
+-- Section: Inventory Tracker
+local SecInv = TabFarm:NewSection("🍬 Inventory Tracker 🍬")
+local labelS = SecInv:NewLabel("🍬 SMALL MARSHMALLOW = 0")
+local labelM = SecInv:NewLabel("🍬 MEDIUM MARSHMALLOW = 0")
+local labelL = SecInv:NewLabel("🍬 LARGE MARSHMALLOW BAG = 0")
 
-task.spawn(function()
-    while task.wait(1) do
+spawn(function()
+    while true do
+        local bp = game.Players.LocalPlayer.Backpack
         local s, m, l = 0, 0, 0
-        local items = Player.Backpack:GetChildren()
-        for _, v in pairs(Player.Character:GetChildren()) do if v:IsA(string">"Tool") then table.insert(items, v) end end
-        
-        for _, item in pairs(items) do
-            if item.Name == string">"Small Marshmallow" then s = s + 1
-            elseif item.Name == string">"Medium Marshmallow" then m = m + 1
-            elseif item.Name == string">"Large Marshmallow Bag" then l = l + 1 end
+        for _, v in pairs(bp:GetChildren()) do
+            if v.Name == "Small Marshmallow Bag" then s = s + 1
+            elseif v.Name == "Medium Marshmallow Bag" then m = m + 1
+            elseif v.Name == "Large Marshmallow bag" then l = l + 1 end
         end
-        labelSmall:UpdateLabel(string">"🍬 SMALL MARSHMALLOW = "..tostring(s))
-        labelMedium:UpdateLabel(string">"🍬 MEDIUM MARSHMALLOW = "..tostring(m))
-        labelLarge:UpdateLabel(string">"🍬 LARGE MARSHMALLOW BAG = "..tostring(l))
+        labelS:SetText("🍬 SMALL MARSHMALLOW = " .. s)
+        labelM:SetText("🍬 MEDIUM MARSHMALLOW = " .. m)
+        labelL:SetText("🍬 LARGE MARSHMALLOW BAG = " .. l)
+        task.wait(1)
     end
 end)
 
-local Tab2 = Window:NewTab(string">"Teleport")
-local TPSection = Tab2:NewSection(string">"Vehicle Sync")
+-- [[ 🚀 TAB 2: TELEPORT (VEHICLE SYNC) ]] --
+local TabTP = MainWin:NewTab("🚀 Teleport")
+local SecTP = TabTP:NewSection("🏍️ Vehicle Teleport (Dirtbike) 🏍️")
 
-local function safeTeleport(cf)
-    local char = Player.Character
-    if char and char:FindFirstChild(string">"Humanoid") then
-        if char.Humanoid.SeatPart then
-            local veh = char.Humanoid.SeatPart.Parent
-            while veh and veh.Parent ~= workspace do veh = veh.Parent end
-            if veh and veh:IsA(string">"Model") then
-                veh:SetPrimaryPartCFrame(cf)
-            end
-        else
-            char.HumanoidRootPart.CFrame = cf
-        end
-    end
-end
-
-TPSection:NewButton(string">"📍 GS Mid", string">"TP to GS Mid", function()
-    safeTeleport(CFrame.new(215, 5, -132))
-end)
-
-TPSection:NewButton(string">"📍 MS Dealer", string">"TP to MS Dealer", function()
-    safeTeleport(CFrame.new(731, 5, 443))
-end)
-
-TPSection:NewButton(string">"📍 Dealership", string">"TP to Dealership", function()
-    safeTeleport(CFrame.new(517, 5, 604))
-end)
-
-local Tab3 = Window:NewTab(string">"FPS Boost")
-local FPSSection = Tab3:NewSection(string">"⚡ 0 FPS")
-
-RunService.RenderStepped:Connect(function()
-    FPSSection:SetTitle(string">"⚡ " .. math.floor(1/RunService.RenderStepped:Wait()) .. string">" FPS")
-end)
-
-FPSSection:NewToggle(string">"Remove Texture", string">"Reduce Lag", function(state)
-    if state then
-        for _, v in pairs(workspace:GetDescendants()) do
-            if v:IsA(string">"Part") or v:IsA(string">"MeshPart") then
-                v.Material = Enum.Material.SmoothPlastic
-            elseif v:IsA(string">"Decal") or v:IsA(string">"Texture") then
-                v.Transparency = 1
-            end
-        end
-    end
-end)
-
-FPSSection:NewToggle(string">"Remove Shadow", string">"Disable Global Shadows", function(state)
-    Lighting.GlobalShadows = not state
-end)
-
-local Tab4 = Window:NewTab(string">"Credits")
-local CreditSection = Tab4:NewSection(string">"Development")
-CreditSection:NewLabel(string">"⭐")
-CreditSection:NewLabel(string">"CREATED BY LYZ-EEN")
-
-FarmSection:NewKeybind(string">"Minimize Key", string">"Hide UI Key", Enum.KeyCode.RightControl, function()
-    if MainGUI.Enabled then
-        HideUI()
+local function VehicleTP(cf)
+    local char = game.Players.LocalPlayer.Character
+    local seat = char and char.Humanoid.SeatPart
+    if seat and seat.Parent.Name == "Dirtbike" then
+        seat.Parent:SetPrimaryPartCFrame(cf)
     else
-        MainGUI.Enabled = true
-        ToggleButton.Visible = false
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "❌ ERROR",
+            Text = "Gunakan Kendaraan!",
+            Duration = 3
+        })
+    end
+end
+
+SecTP:NewButton("📍 GS Mid", "Teleport ke GS Mid", function() VehicleTP(CFrame.new(215, 5, -132)) end)
+SecTP:NewButton("📍 MS Dealer", "Teleport ke MS Dealer", function() VehicleTP(CFrame.new(731, 5, 443)) end)
+SecTP:NewButton("📍 Dealership", "Teleport ke Dealership", function() VehicleTP(CFrame.new(517, 5, 604)) end)
+
+-- [[ ⚡ TAB 3: FPS BOOST (HARDWARE OPTIMIZATION) ]] --
+local TabFPS = MainWin:NewTab("⚡ FPS Boost")
+local SecFPS = TabFPS:NewSection("⚡ 0 FPS")
+
+spawn(function()
+    while task.wait(0.5) do
+        local fps = math.floor(1 / game:GetService("RunService").RenderStepped:Wait())
+        SecFPS:SetSectionName("⚡ " .. fps .. " FPS")
     end
 end)
 
-local closeBtn = MainGUI:FindFirstChild(string">"Close", true) or MainGUI:FindFirstChild(string">"CloseButton", true)
-if closeBtn and closeBtn:IsA(string">"GuiButton") then
-    closeBtn.MouseButton1Click:Connect(HideUI)
-end
+SecFPS:NewToggle("🗑️ Remove Texture", "Boost Performa Nyata", function(state)
+    for _, v in pairs(game:GetDescendants()) do
+        if v:IsA("BasePart") and state then
+            v.Material = Enum.Material.SmoothPlastic
+        elseif v:IsA("Texture") or v:IsA("Decal") then
+            v.Transparency = state and 1 or 0
+        end
+    end
+end)
 
-print(string">"Lyzeen Hub v2.2 Loaded Successfully")
+SecFPS:NewToggle("🌑 Remove Shadow", "Matikan Bayangan", function(state)
+    game.Lighting.GlobalShadows = not state
+end)
+
+-- [[ ⭐ TAB 4: CREDITS ]] --
+local TabCred = MainWin:NewTab("⭐ Credits")
+TabCred:NewSection("⭐")
+TabCred:NewSection("CREATED BY LYZ-EEN")
+
+-- Fix for Delta/Xeno Dragging
+MainFrame.Active = true
+MainFrame.Draggable = true
