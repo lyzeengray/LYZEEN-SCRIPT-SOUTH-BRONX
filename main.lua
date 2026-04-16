@@ -1,193 +1,216 @@
 local Library = loadstring(game:HttpGet(string">"https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local Window = Library.CreateLib(string">"🔵 LYZEEN HUB | v2.2", string">"DarkTheme")
+local Window = Library.CreateLib(string">"🔵 LYZEEN HUB | v2.2", {
+    [string">"themeList"] = {
+        [string">"Lyzeen"] = {
+            [string">"SchemeColor"] = Color3.fromRGB(0, 85, 255),
+            [string">"Background"] = Color3.fromRGB(15, 15, 20),
+            [string">"Header"] = Color3.fromRGB(20, 20, 30),
+            [string">"TextColor"] = Color3.fromRGB(255, 255, 255),
+            [string">"ElementColor"] = Color3.fromRGB(25, 25, 30)
+        }
+    }
+})
+Window:ChangeTheme(string">"Lyzeen")
 
-local colors = {
-    MainColor = Color3.fromRGB(0, 85, 255),
-    BackgroundColor = Color3.fromRGB(15, 15, 20)
-}
+local Players = game:GetService(string">"Players")
+local Player = Players.LocalPlayer
+local Character = Player.Character or Player.CharacterAdded:Wait()
+local RunService = game:GetService(string">"RunService")
+local ReplicatedStorage = game:GetService(string">"ReplicatedStorage")
+local Lighting = game:GetService(string">"Lighting")
 
-local LP = game:GetService(string">"Players").LocalPlayer
-local RS = game:GetService(string">"RunService")
-local TeleportService = game:GetService(string">"TeleportService")
-local StarterGui = game:GetService(string">"StarterGui")
+local MainGUI = game:GetService(string">"CoreGui"):FindFirstChild(string">"🔵 LYZEEN HUB | v2.2") or game:GetService(string">"CoreGui"):WaitForChild(string">"Library")
+local MainFrame = MainGUI:FindFirstChild(string">"Main") or MainGUI.Enabled
 
-local buyAmount = 1
-local autoMasakActive = false
-
--- Minimize System
-local MinimizeUI = Instance.new(string">"ScreenGui")
+local ToggleGUI = Instance.new(string">"ScreenGui")
 local ToggleButton = Instance.new(string">"TextButton")
 local UICorner = Instance.new(string">"UICorner")
 
-MinimizeUI.Name = string">"LyzeenToggle"
-MinimizeUI.Parent = game.CoreGui
-MinimizeUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ToggleGUI.Name = string">"LyzeenToggle"
+ToggleGUI.Parent = game:GetService(string">"CoreGui")
+ToggleGUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 ToggleButton.Name = string">"ToggleButton"
-ToggleButton.Parent = MinimizeUI
-ToggleButton.BackgroundColor3 = colors.MainColor
+ToggleButton.Parent = ToggleGUI
+ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 85, 255)
 ToggleButton.Position = UDim2.new(0.05, 0, 0.2, 0)
-ToggleButton.Size = UDim2.new(0, 50, 0, 50)
+ToggleButton.Size = UDim2.new(0, 60, 0, 60)
 ToggleButton.Font = Enum.Font.LuckiestGuy
 ToggleButton.Text = string">"LH"
 ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ToggleButton.TextSize = 24
-ToggleButton.Active = true
+ToggleButton.TextSize = 30
+ToggleButton.Visible = false
 ToggleButton.Draggable = true
 
 UICorner.CornerRadius = UDim.new(1, 0)
 UICorner.Parent = ToggleButton
 
 ToggleButton.MouseButton1Click:Connect(function()
-    Library:ToggleUI()
+    MainGUI.Enabled = true
+    ToggleButton.Visible = false
 end)
 
--- Tabs
-local AutoFarmTab = Window:NewTab(string">"Auto Farm")
-local TeleportTab = Window:NewTab(string">"Teleport")
-local FPSBoostTab = Window:NewTab(string">"FPS Boost")
-local CreditsTab = Window:NewTab(string">"Credits")
+local function HideUI()
+    MainGUI.Enabled = false
+    ToggleButton.Visible = true
+end
 
--- AUTO FARM SECTIONS
-local BuySellSection = AutoFarmTab:NewSection(string">"Auto Buy & Sell")
-BuySellSection:NewSlider(string">"Buy Amount", string">"Jumlah barang yang dibeli", 101, 1, function(s)
+local Tab1 = Window:NewTab(string">"Auto Farm")
+local FarmSection = Tab1:NewSection(string">"Auto Buy & Sell")
+local CookSection = Tab1:NewSection(string">"Auto Cook(Precision Sequence)")
+local InvSection = Tab1:NewSection(string">"Inventory Tracker")
+
+local buyAmount = 1
+FarmSection:NewSlider(string">"Jumlah Buy", string">"Amount to buy", 101, 1, function(s)
     buyAmount = s
 end)
 
-BuySellSection:NewButton(string">"● BUY ALL", string">"Membeli Water, Sugar, Gelatin", function()
-    local shopEvent = game:GetService(string">"ReplicatedStorage"):FindFirstChild(string">"ShopEvent") or game:GetService(string">"ReplicatedStorage"):FindFirstChild(string">"Remotes") and game:GetService(string">"ReplicatedStorage").Remotes:FindFirstChild(string">"ShopEvent")
-    if shopEvent then
+FarmSection:NewButton(string">"● BUY ALL", string">"Buy Water, Sugar, Gelatin", function()
+    local items = {string">"Water", string">"Sugar Block Bag", string">"Gelatin"}
+    for _, item in pairs(items) do
         for i = 1, buyAmount do
-            shopEvent:FireServer(string">"Water")
-            task.wait(0.05)
-            shopEvent:FireServer(string">"Sugar Block Bag")
-            task.wait(0.05)
-            shopEvent:FireServer(string">"Gelatin")
-            task.wait(0.05)
+            ReplicatedStorage.Events.ShopEvent:FireServer(item, 1)
+            task.wait(0.08)
         end
     end
 end)
 
-local MasakSection = AutoFarmTab:NewSection(string">"Auto Masak")
-MasakSection:NewToggle(string">"START AUTO MASAK", string">"Automatisasi proses memasak", function(state)
-    autoMasakActive = state
-    if state then
-        task.spawn(function()
-            while autoMasakActive do
-                local function interact(itemName, waitTime)
-                    if not autoMasakActive then return end
-                    local tool = LP.Backpack:FindFirstChild(itemName) or LP.Character:FindFirstChild(itemName)
+local autoCook = false
+CookSection:NewToggle(string">"START AUTO MASAK", string">"Recursive Auto Cooker", function(state)
+    autoCook = state
+    task.spawn(function()
+        while autoCook do
+            local cooker = nil
+            for _, v in pairs(workspace:GetDescendants()) do
+                if v:IsA(string">"ProximityPrompt") and (v.Parent.Name:find(string">"Cooker") or v.Parent.Name:find(string">"Stove")) then
+                    cooker = v
+                    break
+                end
+            end
+            
+            if cooker then
+                local function equip(name)
+                    local tool = Player.Backpack:FindFirstChild(name)
                     if tool then
-                        LP.Character.Humanoid:EquipTool(tool)
-                        task.wait(0.2)
-                        for _, v in pairs(workspace:GetDescendants()) do
-                            if v:IsA(string">"ProximityPrompt") and v.Parent.Name == string">"Cooker" or v.Parent.Name == string">"Stove" then
-                                fireproximityprompt(v)
-                                break
-                            end
-                        end
-                        task.wait(waitTime)
+                        Player.Character.Humanoid:EquipTool(tool)
+                        return true
                     end
+                    return false
                 end
 
-                interact(string">"Water", 23)
-                interact(string">"Sugar Block Bag", 1)
-                interact(string">"Gelatin", 63)
-                interact(string">"Empty Bag", 2)
-                task.wait(1)
+                if equip(string">"Water") then 
+                    fireproximityprompt(cooker)
+                    task.wait(23)
+                end
+                if equip(string">"Sugar Block Bag") then 
+                    fireproximityprompt(cooker)
+                    task.wait(1)
+                end
+                if equip(string">"Gelatin") then 
+                    fireproximityprompt(cooker)
+                    task.wait(63)
+                end
+                if equip(string">"Empty Bag") then 
+                    fireproximityprompt(cooker)
+                    task.wait(2)
+                end
             end
-        end)
-    end
+            task.wait(0.5)
+        end
+    end)
 end)
 
-local InventorySection = AutoFarmTab:NewSection(string">"Inventory Tracker")
-local labelSmall = InventorySection:NewLabel(string">"🍬 SMALL MARSHMALLOW = 0")
-local labelMed = InventorySection:NewLabel(string">"🍬 MEDIUM MARSHMALLOW = 0")
-local labelLarge = InventorySection:NewLabel(string">"🍬 LARGE MARSHMALLOW BAG = 0")
+local labelSmall = InvSection:NewLabel(string">"🍬 SMALL MARSHMALLOW = 0")
+local labelMedium = InvSection:NewLabel(string">"🍬 MEDIUM MARSHMALLOW = 0")
+local labelLarge = InvSection:NewLabel(string">"🍬 LARGE MARSHMALLOW BAG = 0")
 
 task.spawn(function()
-    while true do
+    while task.wait(1) do
         local s, m, l = 0, 0, 0
-        local items = LP.Backpack:GetChildren()
-        for _, v in pairs(LP.Character:GetChildren()) do table.insert(items, v) end
+        local items = Player.Backpack:GetChildren()
+        for _, v in pairs(Player.Character:GetChildren()) do if v:IsA(string">"Tool") then table.insert(items, v) end end
         
         for _, item in pairs(items) do
             if item.Name == string">"Small Marshmallow" then s = s + 1
             elseif item.Name == string">"Medium Marshmallow" then m = m + 1
             elseif item.Name == string">"Large Marshmallow Bag" then l = l + 1 end
         end
-        labelSmall:UpdateLabel(string">"🍬 SMALL MARSHMALLOW = "..s)
-        labelMed:UpdateLabel(string">"🍬 MEDIUM MARSHMALLOW = "..m)
-        labelLarge:UpdateLabel(string">"🍬 LARGE MARSHMALLOW BAG = "..l)
-        task.wait(1)
+        labelSmall:UpdateLabel(string">"🍬 SMALL MARSHMALLOW = "..tostring(s))
+        labelMedium:UpdateLabel(string">"🍬 MEDIUM MARSHMALLOW = "..tostring(m))
+        labelLarge:UpdateLabel(string">"🍬 LARGE MARSHMALLOW BAG = "..tostring(l))
     end
 end)
 
--- TELEPORT SECTION
-local function vehicleTeleport(coords)
-    local char = LP.Character
+local Tab2 = Window:NewTab(string">"Teleport")
+local TPSection = Tab2:NewSection(string">"Vehicle Sync")
+
+local function safeTeleport(cf)
+    local char = Player.Character
     if char and char:FindFirstChild(string">"Humanoid") then
-        local seat = char.Humanoid.SeatPart
-        if seat and seat:IsA(string">"VehicleSeat") or seat:IsA(string">"Seat") then
-            local model = seat.Parent
-            while model and not model:IsA(string">"Model") do model = model.Parent end
-            if model then
-                model:MoveTo(coords)
+        if char.Humanoid.SeatPart then
+            local veh = char.Humanoid.SeatPart.Parent
+            while veh and veh.Parent ~= workspace do veh = veh.Parent end
+            if veh and veh:IsA(string">"Model") then
+                veh:SetPrimaryPartCFrame(cf)
             end
         else
-            StarterGui:SetCore(string">"SendNotification", {
-                Title = string">"Lyzeen Hub",
-                Text = string">"Gunakan Kendaraan!",
-                Duration = 5
-            })
+            char.HumanoidRootPart.CFrame = cf
         end
     end
 end
 
-local TPSection = TeleportTab:NewSection(string">"Vehicle Teleport")
-TPSection:NewButton(string">"📍 GS Mid", string">"Teleport ke GS Mid", function()
-    vehicleTeleport(Vector3.new(215, 5, -132))
-end)
-TPSection:NewButton(string">"📍 MS Dealer", string">"Teleport ke MS Dealer", function()
-    vehicleTeleport(Vector3.new(731, 5, 443))
-end)
-TPSection:NewButton(string">"📍 Dealership", string">"Teleport ke Dealership", function()
-    vehicleTeleport(Vector3.new(517, 5, 604))
+TPSection:NewButton(string">"📍 GS Mid", string">"TP to GS Mid", function()
+    safeTeleport(CFrame.new(215, 5, -132))
 end)
 
--- FPS BOOST SECTION
-local FPSSection = FPSBoostTab:NewSection(string">"⚡ 0 FPS")
-task.spawn(function()
-    while true do
-        local fps = math.floor(1/task.wait())
-        FPSSection:UpdateSection(string">"⚡ "..fps..string">" FPS")
-        task.wait(0.5)
-    end
+TPSection:NewButton(string">"📍 MS Dealer", string">"TP to MS Dealer", function()
+    safeTeleport(CFrame.new(731, 5, 443))
 end)
 
-FPSSection:NewToggle(string">"Remove Texture", string">"Mengubah part menjadi SmoothPlastic", function(state)
+TPSection:NewButton(string">"📍 Dealership", string">"TP to Dealership", function()
+    safeTeleport(CFrame.new(517, 5, 604))
+end)
+
+local Tab3 = Window:NewTab(string">"FPS Boost")
+local FPSSection = Tab3:NewSection(string">"⚡ 0 FPS")
+
+RunService.RenderStepped:Connect(function()
+    FPSSection:SetTitle(string">"⚡ " .. math.floor(1/RunService.RenderStepped:Wait()) .. string">" FPS")
+end)
+
+FPSSection:NewToggle(string">"Remove Texture", string">"Reduce Lag", function(state)
     if state then
-        for _, v in pairs(game:GetDescendants()) do
-            if v:IsA(string">"Part") or v:IsA(string">"UnionOperation") or v:IsA(string">"MeshPart") then
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA(string">"Part") or v:IsA(string">"MeshPart") then
                 v.Material = Enum.Material.SmoothPlastic
-            elseif v:IsA(string">"Texture") or v:IsA(string">"Decal") then
+            elseif v:IsA(string">"Decal") or v:IsA(string">"Texture") then
                 v.Transparency = 1
             end
         end
     end
 end)
 
-FPSSection:NewToggle(string">"Remove Shadow", string">"Mematikan GlobalShadows", function(state)
-    game:GetService(string">"Lighting").GlobalShadows = not state
+FPSSection:NewToggle(string">"Remove Shadow", string">"Disable Global Shadows", function(state)
+    Lighting.GlobalShadows = not state
 end)
 
--- CREDITS SECTION
-local CreditsSec = CreditsTab:NewSection(string">"Information")
-CreditsSec:NewLabel(string">"⭐")
-CreditsSec:NewLabel(string">"CREATED BY LYZ-EEN")
-CreditsSec:NewKeybind(string">"Toggle UI Keybind", string">"Key to open/close menu", Enum.KeyCode.RightControl, function()
-	Library:ToggleUI()
+local Tab4 = Window:NewTab(string">"Credits")
+local CreditSection = Tab4:NewSection(string">"Development")
+CreditSection:NewLabel(string">"⭐")
+CreditSection:NewLabel(string">"CREATED BY LYZ-EEN")
+
+FarmSection:NewKeybind(string">"Minimize Key", string">"Hide UI Key", Enum.KeyCode.RightControl, function()
+    if MainGUI.Enabled then
+        HideUI()
+    else
+        MainGUI.Enabled = true
+        ToggleButton.Visible = false
+    end
 end)
 
-Library:SetColor(string">"MainColor", colors.MainColor)
-Library:SetColor(string">"BackgroundColor", colors.BackgroundColor)
+local closeBtn = MainGUI:FindFirstChild(string">"Close", true) or MainGUI:FindFirstChild(string">"CloseButton", true)
+if closeBtn and closeBtn:IsA(string">"GuiButton") then
+    closeBtn.MouseButton1Click:Connect(HideUI)
+end
+
+print(string">"Lyzeen Hub v2.2 Loaded Successfully")
