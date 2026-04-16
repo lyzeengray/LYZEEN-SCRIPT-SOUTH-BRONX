@@ -1,173 +1,154 @@
--- [[ 🔵 LYZEEN HUB v2.2 - INDUSTRIAL GRADE 🔵 ]] --
--- Optimizer: Delta & Xeno Stable
--- Features: Precise Auto Cook, Vehicle Teleport, Live Inventory
+-- [[ 🔵 LYZEEN HUB v2.2 - PURE INSTANCE EDITION 🔵 ]] --
+-- Optimizer: Delta & Xeno (No External Library)
+-- Fix: UI Always Visible, Draggable, Auto Cook 23s/1s/63s
 
-local Kavo = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local Colors = {
-    SchemeColor = Color3.fromRGB(0, 85, 255),
-    Background = Color3.fromRGB(15, 15, 20),
-    Header = Color3.fromRGB(20, 20, 30),
-    TextColor = Color3.fromRGB(255, 255, 255),
-    ElementColor = Color3.fromRGB(25, 25, 40)
-}
+local Player = game:GetService("Players").LocalPlayer
+local CoreGui = game:GetService("CoreGui")
+local UserInputService = game:GetService("UserInputService")
 
--- [[ 🛠️ UI INITIALIZATION ]] --
-local MainWin = Kavo.CreateLib("🔵 LYZEEN HUB | v2.2", Colors)
-local MainFrame = game:GetService("CoreGui"):FindFirstChild("🔵 LYZEEN HUB | v2.2").Main
+-- Hapus UI lama agar tidak menumpuk
+if CoreGui:FindFirstChild("LyzeenHub_Supreme") then CoreGui.LyzeenHub_Supreme:Destroy() end
 
--- [[ 🔳 MINIMIZE SYSTEM (LH LOGO) ]] --
-local MinimizeUI = Instance.new("ScreenGui")
-MinimizeUI.Name = "LyzeenMinimize"
-MinimizeUI.Parent = game:GetService("CoreGui")
+local Screen = Instance.new("ScreenGui", CoreGui)
+Screen.Name = "LyzeenHub_Supreme"
 
-local LH = Instance.new("TextButton")
-LH.Parent = MinimizeUI
+-- [[ 🔳 MAIN MENU FRAME ]] --
+local Main = Instance.new("Frame", Screen)
+Main.Name = "Main"
+Main.Size = UDim2.new(0, 350, 0, 280)
+Main.Position = UDim2.new(0.5, -175, 0.5, -140)
+Main.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+Main.BorderSizePixel = 0
+Main.Active = true
+Main.Draggable = true -- Pastikan bisa digeser di Mobile
+
+local Corner = Instance.new("UICorner", Main)
+Corner.CornerRadius = UDim.new(0, 10)
+
+-- [[ 🔵 HEADER ]] --
+local Header = Instance.new("Frame", Main)
+Header.Size = UDim2.new(1, 0, 0, 40)
+Header.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+Instance.new("UICorner", Header)
+
+local Title = Instance.new("TextLabel", Header)
+Title.Size = UDim2.new(1, -50, 1, 0)
+Title.Position = UDim2.new(0, 15, 0, 0)
+Title.Text = "🔵 LYZEEN HUB | v2.2"
+Title.TextColor3 = Color3.new(1, 1, 1)
+Title.Font = Enum.Font.FredokaOne
+Title.TextSize = 18
+Title.BackgroundTransparency = 1
+Title.TextXAlignment = Enum.TextXAlignment.Left
+
+-- [[ 🔳 MINIMIZE BUTTON (Top Right) ]] --
+local MinBtn = Instance.new("TextButton", Header)
+MinBtn.Size = UDim2.new(0, 30, 0, 30)
+MinBtn.Position = UDim2.new(1, -35, 0, 5)
+MinBtn.Text = "🔳"
+MinBtn.BackgroundColor3 = Color3.fromRGB(0, 85, 255)
+MinBtn.TextColor3 = Color3.new(1, 1, 1)
+Instance.new("UICorner", MinBtn)
+
+-- [[ 🔘 FLOATING LOGO LH ]] --
+local LH = Instance.new("TextButton", Screen)
 LH.Size = UDim2.new(0, 60, 0, 60)
-LH.Position = UDim2.new(0, 20, 0, 200)
+LH.Position = UDim2.new(0, 20, 0, 150)
 LH.BackgroundColor3 = Color3.fromRGB(0, 85, 255)
 LH.Text = "LH"
 LH.Font = Enum.Font.LuckiestGuy
 LH.TextSize = 30
 LH.TextColor3 = Color3.new(1, 1, 1)
 LH.Visible = false
-LH.Draggable = true -- Support Mobile Drag
+LH.Draggable = true
 Instance.new("UICorner", LH).CornerRadius = UDim.new(0, 15)
 
-local function ToggleUI()
-    local isVisible = MainFrame.Visible
-    MainFrame.Visible = not isVisible
-    LH.Visible = isVisible
-end
-
-LH.MouseButton1Click:Connect(ToggleUI)
-
--- [[ 🌾 TAB 1: AUTO FARM (MASTER ENGINE) ]] --
-local TabFarm = MainWin:NewTab("🌾 Auto Farm")
-
--- Section: Auto Buy
-local SecBuy = TabFarm:NewSection("🛒 Auto Buy & Sell 💵")
-SecBuy:NewButton("🔳 MINIMIZE MENU", "Klik untuk munculkan logo LH", ToggleUI)
-
-local buyAmt = 50
-SecBuy:NewSlider("🔢 Jumlah Buy:", "Geser jumlah item", 101, 1, function(s) buyAmt = s end)
-
-SecBuy:NewButton("🔵 BUY ALL (Materials)", "Beli Water, Sugar, Gelatin", function()
-    local shop = game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("ShopEvent")
-    for i = 1, buyAmt do
-        shop:FireServer("Water")
-        task.wait(0.08)
-        shop:FireServer("Sugar Block Bag")
-        task.wait(0.08)
-        shop:FireServer("Gelatin")
-        task.wait(0.1)
-    end
+MinBtn.MouseButton1Click:Connect(function()
+    Main.Visible = false
+    LH.Visible = true
+end)
+LH.MouseButton1Click:Connect(function()
+    Main.Visible = true
+    LH.Visible = false
 end)
 
--- Section: Auto Cook (The Precise Sequence)
-local SecCook = TabFarm:NewSection("🍳 Auto Cook Sequence ⏱️")
-_G.AutoCook = false
-SecCook:NewToggle("🔥 START AUTO MASAK", "Sekuens Masak Otomatis", function(state)
-    _G.AutoCook = state
+-- [[ 📜 CONTENT SCROLLING ]] --
+local Scroll = Instance.new("ScrollingFrame", Main)
+Scroll.Size = UDim2.new(1, -20, 1, -50)
+Scroll.Position = UDim2.new(0, 10, 0, 45)
+Scroll.BackgroundTransparency = 1
+Scroll.CanvasSize = UDim2.new(0, 0, 2, 0)
+Scroll.ScrollBarThickness = 2
+
+local Layout = Instance.new("UIListLayout", Scroll)
+Layout.Padding = UDim.new(0, 8)
+
+-- [[ 🚜 FITUR AUTO COOK ]] --
+local CookBtn = Instance.new("TextButton", Scroll)
+CookBtn.Size = UDim2.new(1, 0, 0, 40)
+CookBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 40)
+CookBtn.Text = "🔥 START AUTO COOK"
+CookBtn.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", CookBtn)
+
+local cooking = false
+CookBtn.MouseButton1Click:Connect(function()
+    cooking = not cooking
+    CookBtn.Text = cooking and "🛑 STOP COOKING" or "🔥 START AUTO COOK"
+    CookBtn.BackgroundColor3 = cooking and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(25, 25, 40)
+    
     spawn(function()
-        while _G.AutoCook do
-            local p = game.Players.LocalPlayer
-            local function cook(name, duration)
-                if not _G.AutoCook then return end
-                local tool = p.Backpack:FindFirstChild(name) or p.Character:FindFirstChild(name)
-                if tool then
-                    p.Character.Humanoid:EquipTool(tool)
+        while cooking do
+            local function use(toolName, waitTime)
+                if not cooking then return end
+                local t = Player.Backpack:FindFirstChild(toolName) or Player.Character:FindFirstChild(toolName)
+                if t then
+                    Player.Character.Humanoid:EquipTool(t)
                     task.wait(0.5)
                     for _, v in pairs(workspace:GetDescendants()) do
-                        if v:IsA("ProximityPrompt") and p:DistanceFromCharacter(v.Parent.Position) < 12 then
+                        if v:IsA("ProximityPrompt") and Player:DistanceFromCharacter(v.Parent.Position) < 12 then
                             fireproximityprompt(v)
                         end
                     end
-                    task.wait(duration)
+                    task.wait(waitTime)
                 end
             end
-            cook("Water", 23)
-            cook("Sugar Block Bag", 1)
-            cook("Gelatin", 63)
-            cook("Empty Bag", 2)
+            use("Water", 23)
+            use("Sugar Block Bag", 1)
+            use("Gelatin", 63)
+            use("Empty Bag", 2)
             task.wait(1)
         end
     end)
 end)
 
--- Section: Inventory Tracker
-local SecInv = TabFarm:NewSection("🍬 Inventory Tracker 🍬")
-local labelS = SecInv:NewLabel("🍬 SMALL MARSHMALLOW = 0")
-local labelM = SecInv:NewLabel("🍬 MEDIUM MARSHMALLOW = 0")
-local labelL = SecInv:NewLabel("🍬 LARGE MARSHMALLOW BAG = 0")
-
-spawn(function()
-    while true do
-        local bp = game.Players.LocalPlayer.Backpack
-        local s, m, l = 0, 0, 0
-        for _, v in pairs(bp:GetChildren()) do
-            if v.Name == "Small Marshmallow Bag" then s = s + 1
-            elseif v.Name == "Medium Marshmallow Bag" then m = m + 1
-            elseif v.Name == "Large Marshmallow bag" then l = l + 1 end
+-- [[ 🚀 VEHICLE TELEPORT ]] --
+local function AddTP(name, pos)
+    local btn = Instance.new("TextButton", Scroll)
+    btn.Size = UDim2.new(1, 0, 0, 35)
+    btn.BackgroundColor3 = Color3.fromRGB(0, 85, 255)
+    btn.Text = "📍 " .. name
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    Instance.new("UICorner", btn)
+    
+    btn.MouseButton1Click:Connect(function()
+        local seat = Player.Character.Humanoid.SeatPart
+        if seat and seat.Parent.Name == "Dirtbike" then
+            seat.Parent:SetPrimaryPartCFrame(CFrame.new(pos))
+        else
+            game:GetService("StarterGui"):SetCore("SendNotification", {Title="❌ ERROR", Text="Naik Dirtbike Dulu!"})
         end
-        labelS:SetText("🍬 SMALL MARSHMALLOW = " .. s)
-        labelM:SetText("🍬 MEDIUM MARSHMALLOW = " .. m)
-        labelL:SetText("🍬 LARGE MARSHMALLOW BAG = " .. l)
-        task.wait(1)
-    end
-end)
-
--- [[ 🚀 TAB 2: TELEPORT (VEHICLE SYNC) ]] --
-local TabTP = MainWin:NewTab("🚀 Teleport")
-local SecTP = TabTP:NewSection("🏍️ Vehicle Teleport (Dirtbike) 🏍️")
-
-local function VehicleTP(cf)
-    local char = game.Players.LocalPlayer.Character
-    local seat = char and char.Humanoid.SeatPart
-    if seat and seat.Parent.Name == "Dirtbike" then
-        seat.Parent:SetPrimaryPartCFrame(cf)
-    else
-        game:GetService("StarterGui"):SetCore("SendNotification", {
-            Title = "❌ ERROR",
-            Text = "Gunakan Kendaraan!",
-            Duration = 3
-        })
-    end
+    end)
 end
 
-SecTP:NewButton("📍 GS Mid", "Teleport ke GS Mid", function() VehicleTP(CFrame.new(215, 5, -132)) end)
-SecTP:NewButton("📍 MS Dealer", "Teleport ke MS Dealer", function() VehicleTP(CFrame.new(731, 5, 443)) end)
-SecTP:NewButton("📍 Dealership", "Teleport ke Dealership", function() VehicleTP(CFrame.new(517, 5, 604)) end)
+AddTP("GS Mid", Vector3.new(215, 5, -132))
+AddTP("MS Dealer", Vector3.new(731, 5, 443))
+AddTP("Dealership", Vector3.new(517, 5, 604))
 
--- [[ ⚡ TAB 3: FPS BOOST (HARDWARE OPTIMIZATION) ]] --
-local TabFPS = MainWin:NewTab("⚡ FPS Boost")
-local SecFPS = TabFPS:NewSection("⚡ 0 FPS")
-
-spawn(function()
-    while task.wait(0.5) do
-        local fps = math.floor(1 / game:GetService("RunService").RenderStepped:Wait())
-        SecFPS:SetSectionName("⚡ " .. fps .. " FPS")
-    end
-end)
-
-SecFPS:NewToggle("🗑️ Remove Texture", "Boost Performa Nyata", function(state)
-    for _, v in pairs(game:GetDescendants()) do
-        if v:IsA("BasePart") and state then
-            v.Material = Enum.Material.SmoothPlastic
-        elseif v:IsA("Texture") or v:IsA("Decal") then
-            v.Transparency = state and 1 or 0
-        end
-    end
-end)
-
-SecFPS:NewToggle("🌑 Remove Shadow", "Matikan Bayangan", function(state)
-    game.Lighting.GlobalShadows = not state
-end)
-
--- [[ ⭐ TAB 4: CREDITS ]] --
-local TabCred = MainWin:NewTab("⭐ Credits")
-TabCred:NewSection("⭐")
-TabCred:NewSection("CREATED BY LYZ-EEN")
-
--- Fix for Delta/Xeno Dragging
-MainFrame.Active = true
-MainFrame.Draggable = true
+-- [[ ⭐ CREDITS ]] --
+local Credit = Instance.new("TextLabel", Scroll)
+Credit.Size = UDim2.new(1, 0, 0, 50)
+Credit.Text = "⭐\nCREATED BY LYZ-EEN"
+Credit.TextColor3 = Color3.fromRGB(0, 85, 255)
+Credit.BackgroundTransparency = 1
+Credit.Font = Enum.Font.FredokaOne
