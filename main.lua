@@ -1,39 +1,36 @@
--- [🌀] LYZEEN ULTIMATE HOOKER v2
-print("[🌀] Lyzeen AI: Memasang jaring di memori...")
+-- [🌀] LYZEEN GHOST HOOK v3 (Khusus Xeno/Anti-Detect)
+print("[🌀] Memasang jaring bayangan...")
 
-local function capture(url, data)
-    local filename = "DUMP_" .. tick() .. ".lua"
-    writefile(filename, "-- SOURCE URL: " .. tostring(url) .. "\n\n" .. tostring(data))
-    warn("[🌀] AKAR BERHASIL DICOPY! Cek file: " .. filename)
+local function save_akar(link, konten)
+    local nama = "AKAR_" .. math.random(100, 999) .. ".lua"
+    writefile(nama, "-- LINK ASLI: " .. tostring(link) .. "\n\n" .. tostring(konten))
+    warn("[🌀] BERHASIL! Cek folder workspace: " .. nama)
 end
 
--- Hook HttpGet (Cara Standar)
-local oldGet; oldGet = hookfunction(game.HttpGet, function(self, url, ...)
-    local result = oldGet(self, url, ...)
-    capture(url, result)
-    return result
+-- Gunakan Metatable Hook (Lebih susah dideteksi daripada hookfunction biasa)
+local mt = getrawmetatable(game)
+local old_nc = mt.__namecall
+setreadonly(mt, false)
+
+mt.__namecall = newcclosure(function(self, ...)
+    local method = getnamecallmethod()
+    local args = {...}
+    
+    if method == "HttpGet" or method == "HttpGetAsync" then
+        local url = args[1]
+        -- Panggil fungsi asli secara diam-diam
+        local data_asli = old_nc(self, unpack(args))
+        
+        -- Simpan data tanpa merusak aliran script target
+        spawn(function()
+            save_akar(url, data_asli)
+        end)
+        
+        return data_asli
+    end
+    
+    return old_nc(self, ...)
 end)
 
--- Hook HttpGetAsync (Cara Cadangan)
-local oldAsync; oldAsync = hookfunction(game.HttpGetAsync, function(self, url, ...)
-    local result = oldAsync(self, url, ...)
-    capture(url, result)
-    return result
-end)
-
--- Antisipasi kalau dia pake Request (Executor High-End)
-if syn and syn.request then
-    local oldReq; oldReq = hookfunction(syn.request, function(req)
-        local res = oldReq(req)
-        capture(req.Url, res.Body)
-        return res
-    end)
-elseif request then
-    local oldReq; oldReq = hookfunction(request, function(req)
-        local res = oldReq(req)
-        capture(req.Url, res.Body)
-        return res
-    end)
-end
-
-print("[🌀] Jaring Aktif. Silakan jalanin script target sekarang!")
+setreadonly(mt, true)
+print("[🌀] Jaring Bayangan Aktif. Silakan jalanin Majesty Store!")
