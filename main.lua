@@ -53,7 +53,7 @@ TCorner.CornerRadius = UDim.new(0, 10)
 TCorner.Parent = TopBar
 
 local Title = Instance.new("TextLabel")
-Title.Text = "🌀 LyzeenHUB • <font color='#55ff55'>Leaked by LyzeenGray</font>"
+Title.Text = "🌟 LyzeenHUB • <font color='#55ff55'>Created by LyzeenGray</font>"
 Title.RichText = true
 Title.Size = UDim2.new(0, 400, 0, 30)
 Title.Position = UDim2.new(0, 20, 0, 10)
@@ -65,7 +65,7 @@ Title.BackgroundTransparency = 1
 Title.Parent = TopBar
 
 local Status = Instance.new("TextLabel")
-Status.Text = "● EXECUTOR READY | SYSTEM: XENO | USER: " .. LP.Name
+Status.Text = "🟢 SCRIPT READY | USER: " .. LP.Name
 Status.Size = UDim2.new(0, 400, 0, 20)
 Status.Position = UDim2.new(0, 20, 0, 32)
 Status.TextColor3 = Color3.fromRGB(120, 120, 120)
@@ -191,8 +191,8 @@ local function AddCredit(name, role)
     t.Parent = f
 end
 
-AddCredit("Lyzeen AI", "Owner & Founder")
-AddCredit("LyzeenGray", "Lead Leaker")
+AddCredit("LyzeenGray", "Owner✨Founder")
+AddCredit("LyzeenGray", "Ui⚡Stylish")
 
 -- [[ DRAG LOGIC ]]
 local dragToggle = nil
