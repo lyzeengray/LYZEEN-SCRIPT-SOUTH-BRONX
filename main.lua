@@ -1,36 +1,31 @@
--- [🌀] LYZEEN GHOST HOOK v3 (Khusus Xeno/Anti-Detect)
-print("[🌀] Memasang jaring bayangan...")
+-- [🌀] LYZEEN HYPER-STEALTH v4 (NO HOOK - ANTI DETECT)
+print("[🌀] Memulai penyusupan jalur belakang...")
 
-local function save_akar(link, konten)
-    local nama = "AKAR_" .. math.random(100, 999) .. ".lua"
-    writefile(nama, "-- LINK ASLI: " .. tostring(link) .. "\n\n" .. tostring(konten))
-    warn("[🌀] BERHASIL! Cek folder workspace: " .. nama)
+-- Gak pake hookfunction, kita pake jalur LogService (Nguping apa yang di-print script itu)
+local LogService = game:GetService("LogService")
+local function dump_akar(msg)
+    -- Kadang script loadstring nge-print URL-nya ke log internal
+    if msg:find("http") then
+        writefile("LINK_RAHASIA_"..math.random(1,999)..".txt", msg)
+        warn("[🌀] Link web terdeteksi dan disimpan!")
+    end
 end
+LogService.MessageOut:Connect(dump_akar)
 
--- Gunakan Metatable Hook (Lebih susah dideteksi daripada hookfunction biasa)
-local mt = getrawmetatable(game)
-local old_nc = mt.__namecall
-setreadonly(mt, false)
-
-mt.__namecall = newcclosure(function(self, ...)
+-- Teknik RAW GET (Bypass proteksi Xeno)
+local old_get; old_get = hookmetamethod(game, "__namecall", function(self, ...)
     local method = getnamecallmethod()
     local args = {...}
     
-    if method == "HttpGet" or method == "HttpGetAsync" then
+    if (method == "HttpGet" or method == "HttpGetAsync") and not checkcaller() then
         local url = args[1]
-        -- Panggil fungsi asli secara diam-diam
-        local data_asli = old_nc(self, unpack(args))
-        
-        -- Simpan data tanpa merusak aliran script target
-        spawn(function()
-            save_akar(url, data_asli)
+        -- Panggil asli tapi simpan datanya lewat spawn biar gak ngerusak timing
+        task.spawn(function()
+            local content = game:HttpGet(url)
+            writefile("AKAR_MAJESTY.lua", "-- URL: "..url.."\n\n"..content)
         end)
-        
-        return data_asli
     end
-    
-    return old_nc(self, ...)
+    return old_get(self, ...)
 end)
 
-setreadonly(mt, true)
-print("[🌀] Jaring Bayangan Aktif. Silakan jalanin Majesty Store!")
+print("[🌀] Jaring Bayangan Level 2 Aktif. Coba jalankan Majesty!")
